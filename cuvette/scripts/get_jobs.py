@@ -14,13 +14,6 @@ from rich.console import Console
 from rich.table import Table
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Script to list all running jobs on AI2 through Beaker (for cleaning up those you are done with).')
-    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='The username to process.')
-    parser.add_argument('--include-experiments', '-e', action='store_true', help='Include experiments along with sessions.')
-    return parser.parse_args()
-
-
 def categorize_and_sort_jobs(jobs):
     """ Sort jobs by date, with excutions, then sessions. """
     def sort_job_by_date(job):
@@ -112,12 +105,10 @@ def get_job_data(username, sessions_only=True):
     return processed_jobs
 
 
-def main():
-    args = parse_arguments()
-
+def display_jobs(author, include_experiments):
     processed_jobs = get_job_data(
-        username=args.author, 
-        sessions_only=not args.include_experiments
+        username=author, 
+        sessions_only=include_experiments
     )
 
     console = Console()
@@ -157,3 +148,19 @@ def main():
         )
 
     console.print(table)
+
+
+def sessions():
+    parser = argparse.ArgumentParser(description='Script to list all running jobs on AI2 through Beaker (for cleaning up those you are done with).')
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='The username to process.')
+    args = parser.parse_args()
+
+    display_jobs(args.author, include_experiments=False)
+
+
+def all():
+    parser = argparse.ArgumentParser(description='Script to list all running jobs on AI2 through Beaker (for cleaning up those you are done with).')
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='The username to process.')
+    args = parser.parse_args()
+
+    display_jobs(args.author, include_experiments=True)
