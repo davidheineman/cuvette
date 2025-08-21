@@ -52,15 +52,14 @@ brestart # restart failed experiments in a workspace
 
 ### migration todos
 
-- [ ] bpriority
-- [ ] bcreate
-- [ ] bsecrets
-- [ ] bsecrets_davidh
-- [ ] bsecretslist
+- [ ] `bcreate`
+- [ ] `bsecrets`
+- [ ] `bsecrets_davidh`
+- [ ] `bsecretslist`
+- [ ] A command to copy one secret from one workspace to another
 
-### secrets
+### configuring secrets
 
-1. Add secrets to your beaker workspace:
 ```sh
 # Make secrets files
 touch secrets/.ssh/id_rsa # SSH private key (cat ~/.ssh/id_rsa)
