@@ -3,25 +3,12 @@ import argparse, warnings
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-try:
-    from beaker import Beaker
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "beaker-py"])
-
+from beaker import Beaker
 from beaker import Beaker
 from beaker.services.job import JobClient
 from beaker.data_model.job import JobKind
 
-# Attempt to install rich if it doesnt exist
-try:
-    import rich
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "rich"])
-
+import rich
 from rich.console import Console
 from rich.table import Table
 
@@ -169,5 +156,3 @@ def main():
         )
 
     console.print(table)
-
-if __name__ == "__main__": main()

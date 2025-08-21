@@ -75,7 +75,7 @@ def restart_jobs(author, workspace, limit=5000):
             time.sleep(20)
 
 
-if __name__ == "__main__":
+def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--author", type=str, required=True, help="Author name to filter experiments by")

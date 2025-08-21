@@ -1,25 +1,13 @@
 import warnings, json, subprocess, concurrent.futures
 from typing import Dict
-from scripts.constants import CLUSTERS
+from cuvette.constants import CLUSTERS
 
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-try:
-    from beaker import Beaker
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "beaker-py"])
+from beaker import Beaker
 
-# Attempt to install rich if it doesnt exist
-try:
-    import rich
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "rich"])
-
+import rich
 from rich.console import Console
 from rich.table import Table
 
@@ -76,7 +64,7 @@ def get_free_gpus():
             
     return free_gpus
 
-if __name__ == '__main__':
+def main():
     # Usage example:
     free_gpus = get_free_gpus()
 

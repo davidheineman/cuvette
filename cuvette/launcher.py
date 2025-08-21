@@ -1,22 +1,15 @@
 import textwrap, curses, random, itertools, time, subprocess, threading, queue, sys, os, argparse, re
 from cuvette.figlet import Figlet
-from constants import CLUSTERS
+from cuvette.constants import CLUSTERS
 
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SESSION_NAME = "👋davidh👋"
-SESSION_NAME = "eval-debugging"
 
-# SESSION_WORKSPACE='ai2/lm-eval'
-# SESSION_PRIORITY='high'
-# SESSION_WORKSPACE='ai2/OLMo-mup'
+SESSION_NAME = "eval-debugging"
 SESSION_WORKSPACE='ai2/olmo-3-evals'
 SESSION_PRIORITY='high'
-# SESSION_WORKSPACE='ai2/davidh'
-# SESSION_PRIORITY='normal'
 
-# --gpus {num_gpus}
-# --cluster {_cluster_name}
 LAUNCH_COMMAND = """\
 beaker session create \
     --name {name} \
@@ -54,7 +47,7 @@ beaker session create \
     -- /entrypoint.sh\
 """
 
-UPDATE_PORT_CMD = f"source {SCRIPT_DIR}/update_port.sh {{session_id}}"
+UPDATE_PORT_CMD = f"bport -s {{session_id}}"
 
 
 # this might be a bit much...

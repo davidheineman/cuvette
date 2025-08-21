@@ -3,13 +3,6 @@ import argparse, sys, warnings
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-try:
-    from beaker import Beaker
-except ImportError:
-    import subprocess
-    import sys
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "beaker-py"])
-
 from beaker import Beaker
 from beaker.exceptions import JobNotFound
 
@@ -76,7 +69,7 @@ def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = Fal
         print(f"Error streaming logs: {e}")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Stream logs from a Beaker job")
     parser.add_argument("-j", "--job_id", help="The ID or name of the Beaker job", required=True)    
     parser.add_argument("-s", "--stream", help="The ID or name of the Beaker job", action="store_true", default=False)    

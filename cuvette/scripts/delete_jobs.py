@@ -60,7 +60,7 @@ def delete_jobs(term, author, workspace, limit=5000):
             time.sleep(20)
 
 
-if __name__ == "__main__":
+def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", "--term", type=str, required=True, help="A term in the experiment name to use for deletion")

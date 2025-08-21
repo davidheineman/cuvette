@@ -5,8 +5,8 @@ import os
 from typing import List, Optional
 import argparse, warnings
 
-from stop_jobs import gather_experiments
-from stream_logs import stream_experiment_logs
+from cuvette.stop_jobs import gather_experiments
+from cuvette.stream_logs import stream_experiment_logs
 
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
@@ -155,7 +155,7 @@ def parse_arguments():
     parser.add_argument("-p", "--prompt", type=str, default="", help="Additional instructions to the prompt when parsing the errors in the logs")
     return parser.parse_args()
 
-if __name__ == "__main__": 
+def main():
     # python tools/scripts/parse_logs_bulk.py -a davidh -w ai2/olmo-3-evals -l 450
 
     args = parse_arguments()

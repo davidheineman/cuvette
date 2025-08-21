@@ -3,63 +3,6 @@
 BEAKER_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 BEAKER_SECRETS_DIR="$(dirname "$BEAKER_TOOLS_DIR")/secrets"
 
-alias ai2="ssh ai2"
-alias bs='beaker session stop'
-alias bd='python '$BEAKER_TOOLS_DIR'/scripts/get_jobs.py --username davidh --sessions-only' # describe sessions
-alias bdall='python '$BEAKER_TOOLS_DIR'/scripts/get_jobs.py --username davidh' # describe all jobs
-alias bl='python '$BEAKER_TOOLS_DIR'/scripts/launcher.py' # launch session
-alias blogs='python '$BEAKER_TOOLS_DIR'/scripts/stream_logs.py -j' # launch session
-alias bstream='python '$BEAKER_TOOLS_DIR'/scripts/stream_logs.py -s -j' # launch session
-alias blist='beaker session list --all --author davidh | grep running'
-alias bport='source '$BEAKER_TOOLS_DIR'/update_port.sh' # update port to current session
-
-brestart() {
-    if [[ $# -lt 2 ]]; then
-        echo "Usage: brestart <workspace> <limit>"
-        return 1
-    fi
-
-    WORKSPACE="$1"
-    LIMIT="$2"
-
-    python $BEAKER_TOOLS_DIR/scripts/restart_jobs.py \
-        --author davidh \
-        --workspace $WORKSPACE \
-        --limit $LIMIT
-}
-
-bstop() {
-    if [[ $# -lt 2 ]]; then
-        echo "Usage: bstop <workspace> <limit>"
-        return 1
-    fi
-
-    WORKSPACE="$1"
-    LIMIT="$2"
-
-    python $BEAKER_TOOLS_DIR/scripts/stop_jobs.py \
-        --author davidh \
-        --workspace $WORKSPACE \
-        --limit $LIMIT
-}
-
-bparse() {
-    if [[ $# -lt 2 ]]; then
-        echo "Usage: bparse <workspace> <limit> <prompt>"
-        return 1
-    fi
-
-    WORKSPACE="$1"
-    LIMIT="$2"
-    PROMPT="$3"
-
-    python $BEAKER_TOOLS_DIR/scripts/parse_logs_bulk.py \
-        --author davidh \
-        --workspace $WORKSPACE \
-        --limit $LIMIT \
-        --prompt $PROMPT
-}
-
 bpriority() {
     if [[ $# -lt 2 ]]; then
         echo "Usage: bpriority <workspace> <priority>"
@@ -165,30 +108,10 @@ bsecretslist() {
     done
 }
 
-bweb() {
-    if [ -z "$*" ]; then
-        open -a "Google Chrome" "https://beaker.allen.ai/orgs/ai2/workspaces/davidh?rowsPerPage=100"
-    else
-        open -a "Google Chrome" "https://beaker.allen.ai/orgs/ai2/workspaces/$*?rowsPerPage=100?"
-    fi
-}
-
 bupdate() {
     chmod +x $BEAKER_TOOLS_DIR/download-beaker.sh
     source $BEAKER_TOOLS_DIR/download-beaker.sh
 }
-
-bfree() {
-    python $BEAKER_TOOLS_DIR/get_free_gpus.py
-}
-
-
-# Pipe a gantry command into bstream. Usage: [gantry arg] | gstream
-bfollow() {
-  local id=$(grep -oE 'beaker.org/ex/01[A-Z0-9]{25}' | sed 's|.*/||')
-  bstream "$id"
-}
-
 
 ai2code() {
     if [ -z "$1" ]; then
