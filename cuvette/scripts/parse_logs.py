@@ -86,7 +86,7 @@ def get_failed_logs(experiment):
     return logs
 
 
-def main(author, workspace, limit, instructions):
+def parse(author, workspace, limit, instructions):
     openai_init()
 
     experiments: List[Experiment] = gather_experiments(
@@ -152,4 +152,4 @@ def main():
     )
     args = parser.parse_args()
 
-    main(args.author, args.workspace, args.limit, args.prompt)
+    parse(args.author, args.workspace, args.limit, args.prompt)
