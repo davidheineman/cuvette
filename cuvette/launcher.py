@@ -59,7 +59,7 @@ beaker session create \
     -- /entrypoint.sh\
 """
 
-UPDATE_PORT_CMD = "bport -s {session_id}"
+UPDATE_PORT_CMD = "bport {session_id}"
 
 
 # this might be a bit much...

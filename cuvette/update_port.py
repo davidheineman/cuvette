@@ -31,8 +31,12 @@ def get_host(session_id=None):
                 session = _session
                 break
     else:
-        # Get most recent session
-        session = session_data[-1]
+        # Get most recent session, prioritizing GPU sessions
+        gpu_sessions = [s for s in session_data if s.get('gpus') and int(s['gpus']) > 0]
+        if gpu_sessions:
+            session = gpu_sessions[-1]  # Most recent GPU session
+        else:
+            session = session_data[-1]  # Most recent session (CPU)
         
     if session is None:
         raise RuntimeError(f"No session found with id: {session_id}")
@@ -126,7 +130,7 @@ def open_ssh_tunnel():
 def main():
     parser = argparse.ArgumentParser(description="Update SSH port configuration for Beaker session")
     parser.add_argument(
-        "session_id", type=str, nargs="?", default="", help="Beaker session ID to update port for"
+        "session_id", type=str, nargs="?", default=None, help="Beaker session ID to update port for"
     )
     args = parser.parse_args()
 
