@@ -1,11 +1,10 @@
 import argparse
-import re
 from pathlib import Path
 
 from cuvette.scripts.get_jobs import get_job_data
 from cuvette.scripts.utils import get_default_user, run_command
 
-USERNAME = "davidh"
+SSH_USER = "davidh"
 
 CONFIG = """
 Host {name}
@@ -97,8 +96,8 @@ def update_ssh_config(host_name, server_port):
     config_content = '\n'.join(new_config_lines)
 
     # Add ai2 hosts
-    config_content += CONFIG.format(name="ai2", username=USERNAME, hostname=host_name, port=server_port)
-    config_content += CONFIG.format(name="ai2-root", username=USERNAME, hostname=host_name, port=server_port)
+    config_content += CONFIG.format(name="ai2", username=SSH_USER, hostname=host_name, port=server_port)
+    config_content += CONFIG.format(name="ai2-root", username=SSH_USER, hostname=host_name, port=server_port)
 
     # Write updated config
     config_file.write_text("\n".join(config_lines))
