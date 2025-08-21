@@ -1,22 +1,18 @@
 from dataclasses import asdict, dataclass
 import json
-import sys
-import os
 from typing import List, Optional
 import argparse, warnings
 
-from cuvette.stop_jobs import gather_experiments
-from cuvette.stream_logs import stream_experiment_logs
+from cuvette.scripts.utils import get_default_user
+from cuvette.scripts.stop_jobs import gather_experiments
+from cuvette.scripts.stream_logs import stream_experiment_logs
 
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
 from beaker import Beaker, BeakerError, Experiment, Job
 
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-sys.path.append(root_dir)
-
-from scripts.gpt import openai_init, generate_gpt
+from deviousutils.openai import openai_init, generate_gpt
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
@@ -149,14 +145,12 @@ def main(author, workspace, limit, instructions):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Analyze logs wtih ChatGPT.')
-    parser.add_argument("-a", "--author", type=str, required=True, help="Author name to filter experiments by")
     parser.add_argument("-w", "--workspace", type=str, required=True, help="Beaker workspace name")
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='Author name to filter experiments by.')
     parser.add_argument("-l", "--limit", type=int, default=100, help="Maximum number of experiments to check")
     parser.add_argument("-p", "--prompt", type=str, default="", help="Additional instructions to the prompt when parsing the errors in the logs")
     return parser.parse_args()
 
 def main():
-    # python tools/scripts/parse_logs_bulk.py -a davidh -w ai2/olmo-3-evals -l 450
-
     args = parse_arguments()
     main(args.author, args.workspace, args.limit, args.prompt)

@@ -8,7 +8,8 @@ version = "0.1.0"
 requires-python = ">=3.8"
 dependencies = [
     "beaker-py==1.36.2",
-    "rich"
+    "rich",
+    "deviousutils"
 ]
 
 [project.scripts]
@@ -18,15 +19,15 @@ dependencies = [
 # alias bport='source '$BEAKER_TOOLS_DIR'/update_port.sh' # update port to current session
 bl = "cuvette.launcher:main"
 claunch = "cuvette.launcher:main"
-bd = "cuvette.scripts.get_jobs:main" # --username davidh --sessions-only
-bdall = "cuvette.scripts.get_jobs:main" # --username davidh
+bd = "cuvette.scripts.get_jobs:main"
+bdall = "cuvette.scripts.get_jobs:main"
 bport = "cuvette.update_port:main"
 blogs = "cuvette.scripts.stream_logs:main" # -j
 bstream = "cuvette.scripts.stream_logs:main" # -s -j
-brestart = "cuvette.scripts.restart_jobs:main" # --author davidh --workspace $WORKSPACE --limit $LIMIT
-bstop = "cuvette.scripts.stop_jobs:main" # --author davidh --workspace $WORKSPACE --limit $LIMIT
-bparse = "cuvette.scripts.parse_logs_bulk:main" # --author davidh --workspace $WORKSPACE --limit $LIMIT --prompt $PROMPT
-bpriority = "cuvette.scripts.parse_logs_bulk:main"
+brestart = "cuvette.scripts.restart_jobs:main"
+bstop = "cuvette.scripts.stop_jobs:main"
+bparse = "cuvette.scripts.parse_logs:main" # --author davidh --workspace $WORKSPACE --limit $LIMIT --prompt $PROMPT
+bpriority = "cuvette.scripts.parse_logs:main"
 gpus = "cuvette.scripts.get_free_gpus:main"
 
 [project.optional-dependencies]

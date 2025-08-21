@@ -3,6 +3,8 @@ from typing import List
 from beaker import Beaker, Experiment
 from beaker.exceptions import BeakerError
 
+from cuvette.scripts.utils import get_default_user
+
 def gather_experiments(author_list, workspace_name, limit=2000) -> List[Experiment]:
     """ Gather all failed jobs """
     beaker = Beaker.from_env()
@@ -61,7 +63,7 @@ def stop_jobs(author, workspace, limit=5000):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--author", type=str, required=True, help="Author name to filter experiments by")
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='Author name to filter experiments by.')
     parser.add_argument("-w", "--workspace", type=str, required=True, help="Beaker workspace name")
     parser.add_argument("-l", "--limit", type=int, default=100, help="Maximum number of experiments to check")
     args = parser.parse_args()

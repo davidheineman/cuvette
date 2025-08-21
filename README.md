@@ -27,6 +27,20 @@ https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
 - Launch remote VSCode from terminal in one command (`ai2code your_folder`)
 - GUI launcher (`bl`) with cluster descriptions (no fiddling with `beaker session create`)
 
+### migration todos
+
+[ ] bpriority
+[ ] bcreate
+[ ] bsecrets
+[ ] bsecrets_davidh
+[ ] bsecretslist
+[ ] bupdate
+[ ] ai2code
+[ ] ai2cursor
+[ ] ai2codereset
+[ ] ai2checks
+[ ] ai2cleanup
+
 <hr>
 
 ### tutorial

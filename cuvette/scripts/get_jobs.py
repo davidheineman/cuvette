@@ -1,5 +1,7 @@
 import argparse, warnings
 
+from cuvette.scripts.utils import get_default_user
+
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
@@ -15,8 +17,8 @@ from rich.table import Table
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Script to list all running jobs on AI2 through Beaker (for cleaning up those you are done with).')
-    parser.add_argument('--username', '-u', type=str, required=True, help='The username to process.')
-    parser.add_argument('--sessions-only', '-s', action='store_true', help='Only show interactive sessions.')
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='The username to process.')
+    parser.add_argument('--include-experiments', '-e', action='store_true', help='Include experiments along with sessions.')
     return parser.parse_args()
 
 
@@ -115,8 +117,8 @@ def main():
     args = parse_arguments()
 
     processed_jobs = get_job_data(
-        username=args.username, 
-        sessions_only=args.sessions_only
+        username=args.author, 
+        sessions_only=not args.include_experiments
     )
 
     console = Console()

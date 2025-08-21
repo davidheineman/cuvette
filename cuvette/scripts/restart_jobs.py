@@ -3,6 +3,8 @@ from typing import List
 from beaker import Beaker, Experiment
 from beaker.exceptions import BeakerError
 
+from cuvette.scripts.utils import get_default_user
+
 def beaker_experiment_failed(exp):
     """ Returns if beaker experiment failed. """
     if exp.jobs[0].execution.spec.replicas is not None:
@@ -78,11 +80,9 @@ def restart_jobs(author, workspace, limit=5000):
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--author", type=str, required=True, help="Author name to filter experiments by")
     parser.add_argument("-w", "--workspace", type=str, required=True, help="Beaker workspace name")
+    parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='Author name to filter experiments by.')
     parser.add_argument("-l", "--limit", type=int, default=5000, help="Maximum number of experiments to check")
     args = parser.parse_args()
-
-    # python tools/scripts/restart_jobs.py -a davidh -w ai2/ladder-evals -l 5000
 
     restart_jobs(args.author, args.workspace, args.limit)
