@@ -52,6 +52,7 @@ brestart # restart failed experiments in a workspace
 
 ### migration todos
 
+- [ ] Get macos widget working
 - [ ] `bcreate`
 - [ ] `bsecrets`
 - [ ] `bsecrets_davidh`
