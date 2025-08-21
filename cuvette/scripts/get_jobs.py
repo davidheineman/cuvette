@@ -10,7 +10,6 @@ from beaker import Beaker
 from beaker.services.job import JobClient
 from beaker.data_model.job import JobKind
 
-import rich
 from rich.console import Console
 from rich.table import Table
 

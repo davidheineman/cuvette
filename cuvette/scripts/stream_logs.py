@@ -3,33 +3,32 @@ import argparse, sys, warnings
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-from beaker import Beaker
+from beaker import Beaker, Job, JobExecution
 from beaker.exceptions import JobNotFound
 
 
 def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = False):
-    # Initialize the Beaker client
     beaker = Beaker.from_env()
     
     try:
-        job = beaker.job.get(job_id)
+        job: Job = beaker.job.get(job_id)
 
-        # Get the experiment ID from the job
-        if job.execution is not None:
-            experiment_id = job.execution.experiment
-        else:
+        if job.execution is None:
             if job.kind == 'session':
                 raise ValueError('Job is a session. Please provide an execution job.')
             raise RuntimeError(job)
+
+        execution: JobExecution = job.execution
+        experiment_id = execution.experiment
     except JobNotFound:
         print(f'Job {job_id} not found, using {job_id} as an experiment ID...')
         experiment_id = job_id
 
     # Check if there's multiple tasks
     experiment = beaker.experiment.get(experiment_id)
-    task_ids = [job.execution.task for job in experiment.jobs]
+    task_ids = [execution.task for job in experiment.jobs]
     if len(task_ids) > 1:
-        task_id = [job.execution.task for job in experiment.jobs if job.execution.replica_rank == 0 or job.execution.replica_rank == None][-1]
+        task_id = [execution.task for job in experiment.jobs if execution.replica_rank == 0 or execution.replica_rank == None][-1]
         print(f'Multiple tasks found! Following replica=0: "{task_id}"...')
     else:
         task_id = task_ids[0]
@@ -48,8 +47,7 @@ def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = Fal
         else:
             log_stream = beaker.experiment.logs(
                 experiment_id, 
-                quiet=True,
-                # since=timedelta(minutes=2)
+                quiet=True
             )
             
             logs = ""

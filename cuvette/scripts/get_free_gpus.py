@@ -5,9 +5,6 @@ from cuvette.constants import CLUSTERS
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-from beaker import Beaker
-
-import rich
 from rich.console import Console
 from rich.table import Table
 
@@ -39,12 +36,6 @@ def get_cluster_free_gpus(cluster) -> Dict[str, int]:
     return {}
 
 def get_free_gpus():
-    # Get all clusters for the default organization
-    # beaker = Beaker.from_env()
-    # cluster_client = beaker.cluster
-    # clusters = cluster_client.list()
-    # clusters = [cluster.full_name for cluster in clusters]
-
     # Filter to only the clusters we care about from CLUSTERS constant
     clusters = set()
     for _, cluster_list, _, _ in CLUSTERS:

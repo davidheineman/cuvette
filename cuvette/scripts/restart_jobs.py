@@ -3,7 +3,7 @@ from typing import List
 from beaker import Beaker, Experiment
 from beaker.exceptions import BeakerError
 
-from cuvette.scripts.utils import get_default_user
+from cuvette.scripts.utils import gather_experiments, get_default_user
 
 def beaker_experiment_failed(exp):
     """ Returns if beaker experiment failed. """
@@ -21,38 +21,6 @@ def beaker_experiment_failed(exp):
     return sum(checks) != num_replicas
 
 
-def gather_experiments(author_list, workspace_name, limit=2000):
-    """ Gather all failed jobs """
-    beaker = Beaker.from_env()
-    experiments = []
-
-    # Nice bookkeeping to see how many failed per author - a good gut check, if nothing else
-    num_author_exps = {}
-    for author in author_list:
-        num_author_exps[author] = 0
-
-    print(f'Pulling experiments from "{workspace_name}" for author(s) {author_list}...')
-    exps = beaker.workspace.experiments(
-        workspace=workspace_name, 
-        limit=limit
-    )
-    
-    for exp in exps:
-        author = exp.author.name
-
-        # filter by author and only collect failed experiments
-        if author not in author_list or not beaker_experiment_failed(exp):
-            continue
-
-        experiments.append(exp)
-        num_author_exps[author] += 1
-
-    print (f"Total experiments that failed for authors {author_list}: {len(experiments)}")
-    for author, count in num_author_exps.items():
-        print(f"Author {author} had {count} failed experiments")
-    return experiments
-
-
 def restart_jobs(author, workspace, limit=5000):
     beaker = Beaker.from_env()
     experiments: List[Experiment] = gather_experiments(
@@ -60,12 +28,12 @@ def restart_jobs(author, workspace, limit=5000):
         workspace_name=workspace,
         limit=limit,
     )
+    experiments = [exp for exp in experiments if beaker_experiment_failed(exp)]
     print(f"Found {len(experiments)} failed experiments")
 
     for i, experiment in enumerate(experiments):
         try:
-            print(experiment.description)
-            # beaker.experiment.resume(experiment)
+            beaker.experiment.resume(experiment)
         except BeakerError as e:
             print(f'Failed to restart https://beaker.org/ex/{experiment.id}: {e}')
             continue

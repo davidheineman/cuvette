@@ -3,15 +3,13 @@ import json
 from typing import List, Optional
 import argparse, warnings
 
-from cuvette.scripts.utils import get_default_user
-from cuvette.scripts.stop_jobs import gather_experiments
+from cuvette.scripts.utils import get_default_user, gather_experiments
 from cuvette.scripts.stream_logs import stream_experiment_logs
 
 # Suppress cryptography deprecation warnings
 warnings.filterwarnings('ignore')
 
-from beaker import Beaker, BeakerError, Experiment, Job
-
+from beaker import BeakerError, Experiment, Job
 from deviousutils.openai import openai_init, generate_gpt
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -143,14 +141,12 @@ def main(author, workspace, limit, instructions):
     print(json.dumps([{"name": out.name, "reason": out.llm_response} for out in all_outputs], indent=4))
 
 
-def parse_arguments():
+def main():
     parser = argparse.ArgumentParser(description='Analyze logs wtih ChatGPT.')
     parser.add_argument("-w", "--workspace", type=str, required=True, help="Beaker workspace name")
     parser.add_argument('--author', '-a', type=str, default=get_default_user(), help='Author name to filter experiments by.')
     parser.add_argument("-l", "--limit", type=int, default=100, help="Maximum number of experiments to check")
     parser.add_argument("-p", "--prompt", type=str, default="", help="Additional instructions to the prompt when parsing the errors in the logs")
-    return parser.parse_args()
+    args = parser.parse_args()
 
-def main():
-    args = parse_arguments()
     main(args.author, args.workspace, args.limit, args.prompt)
