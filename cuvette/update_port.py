@@ -3,11 +3,9 @@ import re
 import argparse
 from pathlib import Path
 
-USERNAME = 'davidh'
+from cuvette.scripts.utils import run_command
 
-def run_command(cmd, shell=True):
-    result = subprocess.run(cmd, shell=shell, capture_output=True, text=True)
-    return result.stdout.strip(), result.stderr.strip(), result.returncode
+USERNAME = 'davidh'
 
 def update_port(session_id):
     """ Update ~/.ssh/config to point to a session ID """

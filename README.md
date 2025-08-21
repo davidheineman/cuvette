@@ -52,16 +52,11 @@ brestart # restart failed experiments in a workspace
 
 ### migration todos
 
+- [ ] bpriority
 - [ ] bcreate
 - [ ] bsecrets
 - [ ] bsecrets_davidh
 - [ ] bsecretslist
-- [ ] bupdate
-- [ ] ai2code
-- [ ] ai2cursor
-- [ ] ai2codereset
-- [ ] ai2checks
-- [ ] ai2cleanup
 
 ### secrets
 

@@ -1,5 +1,13 @@
+import subprocess
 from typing import List
 from beaker import Beaker, Experiment
+
+
+
+def run_command(cmd, shell=True):
+    result = subprocess.run(cmd, shell=shell, capture_output=True, text=True)
+    return result.stdout.strip(), result.stderr.strip(), result.returncode
+    
 
 def get_default_user():
     beaker: Beaker = Beaker.from_env()

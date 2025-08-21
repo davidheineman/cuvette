@@ -3,26 +3,6 @@
 BEAKER_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 BEAKER_SECRETS_DIR="$(dirname "$BEAKER_TOOLS_DIR")/secrets"
 
-bpriority() {
-    if [[ $# -lt 2 ]]; then
-        echo "Usage: bpriority <workspace> <priority>"
-        return 1
-    fi
-
-    WORKSPACE="$1"
-    PRIORITY="$2"
-
-    echo "Downloading current results for $WORKSPACE..."
-    beaker workspace experiments "$WORKSPACE" --format json > /tmp/output.json
-    JSON_FILE="/tmp/output.json"
-
-    echo "Extracting BEAKER_JOB_IDs..."
-    jq -r '.[] | .jobs[] | select(.status.canceledCode != 0 and .status.canceledCode != 1) | .id' "$JSON_FILE" | while read -r JOB_ID; do
-        echo "Updating priority for job: $JOB_ID"
-        beaker job update-priority "$JOB_ID" "$PRIORITY" --format json
-    done
-}
-
 bcreate() {
     NEW_WORKSPACE_NAME="$1"
     NEW_WORKSPACE_NAME="${NEW_WORKSPACE_NAME#ai2/}" # Remove ai2/ prefix if it exists
@@ -106,43 +86,4 @@ bsecretslist() {
         echo -e "\n===== $SECRET_NAME ====="
         beaker secret read --workspace "$WORKSPACE_NAME" "$SECRET_NAME"
     done
-}
-
-bupdate() {
-    chmod +x $BEAKER_TOOLS_DIR/download-beaker.sh
-    source $BEAKER_TOOLS_DIR/download-beaker.sh
-}
-
-ai2code() {
-    if [ -z "$1" ]; then
-        code --remote ssh-remote+ai2 /root/ai2
-    else
-        local remote_path="${1:-}"
-        code --remote ssh-remote+ai2 /root/ai2/$remote_path
-    fi
-}
-
-ai2cursor() {
-    if [ -z "$1" ]; then
-        cursor --remote ssh-remote+ai2 /root/ai2
-    else
-        local remote_path="${1:-}"
-        cursor --remote ssh-remote+ai2 /root/ai2/$remote_path
-    fi
-}
-
-ai2codereset() {
-    ai2 'rm -rf ~/.vscode-server/cli/servers'
-}
-
-ai2checks() {
-    make type-check && make build && make style-check && make lint-check
-}
-
-ai2cleanup() {
-    if [ "$1" = "--fix" ]; then
-        isort . && black . && ruff check . --fix && mypy .
-    else
-        isort . && black . && ruff check . && mypy .
-    fi
 }
