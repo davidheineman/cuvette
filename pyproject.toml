@@ -15,8 +15,6 @@ dependencies = [
 [project.scripts]
 # alias ai2="ssh ai2"
 # alias bs='beaker session stop'
-# alias blist='beaker session list --all --author davidh | grep running'
-# alias bport='source '$BEAKER_TOOLS_DIR'/update_port.sh' # update port to current session
 bl = "cuvette.launcher:main"
 claunch = "cuvette.launcher:main"
 bd = "cuvette.scripts.get_jobs:main"
@@ -26,7 +24,7 @@ blogs = "cuvette.scripts.stream_logs:main" # -j
 bstream = "cuvette.scripts.stream_logs:main" # -s -j
 brestart = "cuvette.scripts.restart_jobs:main"
 bstop = "cuvette.scripts.stop_jobs:main"
-bparse = "cuvette.scripts.parse_logs:main" # --author davidh --workspace $WORKSPACE --limit $LIMIT --prompt $PROMPT
+bparse = "cuvette.scripts.parse_logs:main"
 bpriority = "cuvette.scripts.parse_logs:main"
 gpus = "cuvette.scripts.get_free_gpus:main"
 

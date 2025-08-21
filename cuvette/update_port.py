@@ -1,9 +1,9 @@
 import subprocess
-import sys
-import os
 import re
 import argparse
 from pathlib import Path
+
+USERNAME = 'davidh'
 
 def run_command(cmd, shell=True):
     result = subprocess.run(cmd, shell=shell, capture_output=True, text=True)
@@ -87,7 +87,7 @@ def update_port(session_id):
 
     # Add ai2-root host if it doesn't exist
     if "Host ai2-root" not in config_content:
-        ai2_root_config = "\nHost ai2-root\n    User davidh\n    Hostname XXXXX\n    IdentityFile ~/.ssh/id_rsa\n"
+        ai2_root_config = f"\nHost ai2-root\n    User {USERNAME}\n    Hostname XXXXX\n    IdentityFile ~/.ssh/id_rsa\n"
         config_content += ai2_root_config
         print(f"Added 'ai2-root' host to {config_file}")
 
