@@ -13,8 +13,6 @@ dependencies = [
 ]
 
 [project.scripts]
-# alias ai2="ssh ai2"
-# alias bs='beaker session stop'
 bl = "cuvette.launcher:main"
 claunch = "cuvette.launcher:main"
 bd = "cuvette.scripts.get_jobs:sessions"
@@ -32,11 +30,6 @@ ai2cursor = "cuvette.aliases:ai2cursor"
 ai2codereset = "cuvette.aliases:ai2codereset"
 ai2checks = "cuvette.aliases:ai2checks"
 ai2cleanup = "cuvette.aliases:ai2cleanup"
-# l40 = "cuvette."
-# a100 = "cuvette."
-# h100 = "cuvette."
-# b200 = "cuvette."
-# cpu = "cuvette."
 
 [project.optional-dependencies]
 dev = [

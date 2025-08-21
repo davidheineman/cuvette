@@ -3,6 +3,9 @@
 BEAKER_TOOLS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-${(%):-%x}}")" && pwd)"
 BEAKER_SECRETS_DIR="$(dirname "$BEAKER_TOOLS_DIR")/secrets"
 
+alias ai2="ssh ai2"
+alias bs='beaker session stop'
+
 bcreate() {
     NEW_WORKSPACE_NAME="$1"
     NEW_WORKSPACE_NAME="${NEW_WORKSPACE_NAME#ai2/}" # Remove ai2/ prefix if it exists

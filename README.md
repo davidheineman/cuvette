@@ -57,6 +57,7 @@ brestart # restart failed experiments in a workspace
 - [ ] `bsecrets_davidh`
 - [ ] `bsecretslist`
 - [ ] A command to copy one secret from one workspace to another
+- [ ] `l40`, `a100`, `h100`, `b200`, `cpu`
 
 ### configuring secrets
 
