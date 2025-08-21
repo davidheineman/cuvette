@@ -1,19 +1,14 @@
 import argparse
 import json
-import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from typing import List, Optional
 
-from cuvette.scripts.stream_logs import stream_experiment_logs
-from cuvette.scripts.utils import gather_experiments, get_default_user
-
-# Suppress cryptography deprecation warnings
-warnings.filterwarnings("ignore")
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
 from beaker import BeakerError, Experiment, Job
 from deviousutils.openai import generate_gpt, openai_init
+
+from cuvette.scripts.stream_logs import stream_experiment_logs
+from cuvette.scripts.utils import gather_experiments, get_default_user
 
 # Pre-defined failure reasons (for vLLM)
 FAILURE_REASONS = """

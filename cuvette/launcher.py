@@ -223,7 +223,6 @@ class ClusterSelector:
 
     def draw_process_output(self, window, cluster_name: str, num_gpus: int):
         max_y, max_x = window.getmaxyx()
-        menu_width = max_x // 2 - 4
 
         # Clear screen but keep header
         window.clear()
@@ -330,8 +329,6 @@ class ClusterSelector:
         # Display output
         lines = []
         max_lines = box_height - 4  # Leave room for header and borders
-        line_pos = header_height + 2
-        last_line_count = 0
 
         window.nodelay(1)  # Make getch non-blocking
 

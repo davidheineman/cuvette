@@ -52,21 +52,11 @@ def update_port(session_id):
                 port_mappings.append((remote_port, local_port))
                 print(f"Port: {remote_port} (remote) -> {local_port} (local)")
 
-    # Find specific ports
+    # Find server port
     server_port = None
-    jupyter_port = None
-    custom_port0 = None
-    custom_port1 = None
-
     for remote_port, local_port in port_mappings:
         if local_port == "8080":
             server_port = remote_port
-        elif local_port == "8888":
-            jupyter_port = remote_port
-        elif local_port == "8000":
-            custom_port0 = remote_port
-        elif local_port == "8001":
-            custom_port1 = remote_port
 
     # SSH config file path
     config_file = Path.home() / ".ssh" / "config"

@@ -654,11 +654,11 @@ class FigletBuilder(object):
         return self.smushAmount(self.buffer, curChar)
 
     def updateSmushedCharInLeftBuffer(self, addLeft, idx, smushed):
-        l = list(addLeft)
-        if idx < 0 or idx > len(l):
+        left = list(addLeft)
+        if idx < 0 or idx > len(left):
             return addLeft
-        l[idx] = smushed
-        addLeft = "".join(l)
+        left[idx] = smushed
+        addLeft = "".join(left)
         return addLeft
 
     def smushRow(self, curChar, row):

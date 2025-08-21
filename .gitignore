@@ -1,3 +1,6 @@
 *.egg-info
 *.pyc
 secrets
+.venv
+.ruff_cache
+.mypy_cache

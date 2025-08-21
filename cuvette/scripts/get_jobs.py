@@ -1,16 +1,12 @@
 import argparse
-import warnings
-
-from cuvette.scripts.utils import get_default_user
-
-# Suppress cryptography deprecation warnings
-warnings.filterwarnings("ignore")
 
 from beaker import Beaker
 from beaker.data_model.job import JobKind
 from beaker.services.job import JobClient
 from rich.console import Console
 from rich.table import Table
+
+from cuvette.scripts.utils import get_default_user
 
 
 def categorize_and_sort_jobs(jobs):

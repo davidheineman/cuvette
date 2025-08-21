@@ -1,9 +1,5 @@
 import argparse
 import sys
-import warnings
-
-# Suppress cryptography deprecation warnings
-warnings.filterwarnings("ignore")
 
 from beaker import Beaker, Job
 from beaker.exceptions import JobNotFound
@@ -32,7 +28,7 @@ def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = Fal
         task_id = [
             job.execution.task
             for job in experiment.jobs
-            if job.execution.replica_rank == 0 or job.execution.replica_rank == None
+            if job.execution.replica_rank == 0 or job.execution.replica_rank is None
         ][-1]
         print(f'Multiple tasks found! Following replica=0: "{task_id}"...')
     else:

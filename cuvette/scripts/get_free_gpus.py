@@ -1,16 +1,12 @@
 import concurrent.futures
 import json
 import subprocess
-import warnings
 from typing import Dict
-
-from cuvette.constants import CLUSTERS
-
-# Suppress cryptography deprecation warnings
-warnings.filterwarnings("ignore")
 
 from rich.console import Console
 from rich.table import Table
+
+from cuvette.constants import CLUSTERS
 
 
 def get_cluster_free_gpus(cluster) -> Dict[str, int]:
