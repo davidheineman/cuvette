@@ -1,4 +1,4 @@
-e## cuvette
+## cuvette
 
 a tiny wrapper around Beaker tooling. pairs well with [davidheineman/beaker_image](https://github.com/davidheineman/beaker_image).
 
