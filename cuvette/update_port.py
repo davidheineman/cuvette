@@ -6,12 +6,20 @@ from cuvette.scripts.utils import get_default_user, run_command
 
 SSH_USER = "davidh"
 
+# Host ai2-root
+#     User davidh
+#     Hostname phobos-cs-aus-452.reviz.ai2.in
+#     IdentityFile ~/.ssh/id_rsa
+
 CONFIG = """
 Host {name}
     User {username}
     Hostname {hostname}
     Port {port}
     IdentityFile ~/.ssh/id_rsa
+    ControlMaster auto
+    ControlPath ~/.ssh/ai2locks/cm-%r@%h:%p
+    ControlPersist yes
 """
 
 
@@ -100,11 +108,11 @@ def update_ssh_config(host_name, server_port):
     config_content = '\n'.join(new_config_lines)
 
     # Add ai2 hosts
-    config_content += CONFIG.format(name="ai2", username=SSH_USER, hostname=host_name, port=server_port)
+    config_content += CONFIG.format(name="ai2", username="root", hostname=host_name, port=server_port)
     config_content += CONFIG.format(name="ai2-root", username=SSH_USER, hostname=host_name, port=server_port)
 
     # Write updated config
-    config_file.write_text("\n".join(config_lines))
+    config_file.write_text(config_content)
 
     print(
         f"Updated SSH port to \033[35m{host_name}\033[0m:\033[31m{server_port}\033[0m in ~/.ssh/config for ai2 host."

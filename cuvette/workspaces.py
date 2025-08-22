@@ -188,3 +188,39 @@ def list_secrets():
         if args.show_values:
             value = beaker.secret.read(secret.name, workspace=workspace)
             print(value)
+
+
+def copy_secret():
+    parser = argparse.ArgumentParser(
+        description="Copy a secret from one Beaker workspace to another."
+    )
+    parser.add_argument(
+        "--from-workspace", "-f", type=str, required=True, help="The source workspace."
+    )
+    parser.add_argument(
+        "--to-workspace", "-t", type=str, required=True, help="The destination workspace."
+    )
+    parser.add_argument(
+        "--secret", "-s", type=str, required=True, help="The name of the secret to copy."
+    )
+    parser.add_argument(
+        "--new-name", "-n", type=str, help="New name for the secret in destination workspace (optional)."
+    )
+    args = parser.parse_args()
+
+    beaker = Beaker.from_env()
+    
+    try:
+        # Read the secret from the source workspace
+        secret_value = beaker.secret.read(args.secret, workspace=args.from_workspace)
+        
+        # Determine the name for the secret in the destination workspace
+        destination_name = args.new_name if args.new_name else args.secret
+        
+        # Write the secret to the destination workspace
+        beaker.secret.write(destination_name, secret_value, workspace=args.to_workspace)
+        
+        print(f"Copied '{args.secret}': '{args.from_workspace}' -> '{args.to_workspace}' ('{destination_name}')")
+        
+    except Exception as e:
+        print(f"Error copying secret: {e}")

@@ -77,15 +77,8 @@ bpriority # modify priority for all running experiments in a workspace
 brestart # restart failed experiments in a workspace
 ```
 
-<hr>
-
-### migration todos
-
-- [ ] Get macos widget working
-- [ ] A command to copy one secret from one workspace to another
-- [ ] `l40`, `a100`, `h100`, `b200`, `cpu`
-
-### configuring secrets
+<details>
+<summary>configuring secrets</summary>
 
 ```sh
 # Make secrets files
@@ -113,9 +106,17 @@ export SLACK_WEBHOOK_URL=""
 bcreate ai2/davidh
 
 # Copy secrets to workspace
-bsecrets ai2/davidh
-bsecrets_davidh ai2/davidh
+bsync ai2/davidh --all
 
-# Sanity check (list all secrets)
-bsecretslist ai2/davidh
+# List secrets
+blist ai2/davidh
 ```
+
+
+</details>
+
+<hr>
+
+### todos
+
+- [ ] `l40`, `a100`, `h100`, `b200`, `cpu`

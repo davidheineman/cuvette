@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuvette"
-version = "0.2.2"
+version = "0.2.3"
 requires-python = ">=3.8,<=3.10" # <= 3.10 for widget
 dependencies = [
     "beaker-py==1.36.2",
@@ -33,9 +33,9 @@ ai2cursor = "cuvette.aliases:ai2cursor"
 ai2codereset = "cuvette.aliases:ai2codereset"
 ai2checks = "cuvette.aliases:ai2checks"
 ai2cleanup = "cuvette.aliases:ai2cleanup"
-ai2 = "cuvette.aliases:ai2_ssh"
 bs = "cuvette.aliases:beaker_session_stop"
 bwidget = "cuvette.widget.main:main"
+bcopy = "cuvette.workspaces:copy_secret"
 
 [project.optional-dependencies]
 widget = [
