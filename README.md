@@ -18,6 +18,32 @@ https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
 <img width="243" alt="demo-mac-plugin" src="https://github.com/user-attachments/assets/d648a0bb-b787-45f8-b5ac-7542eeb4a654" />
 </p>
 
+
+<details>
+<summary>widget install instructions</summary>
+
+```sh
+# install widget dependencies
+pip install "cuvette[widget]"
+
+# setup
+brew install libffi
+npm install -g pm2
+
+# to test
+bwidget
+
+# to run (using a pm2 background process)
+pm2 start bwidget --name "macos-widget" --interpreter python
+pm2 save
+pm2 startup
+# pm2 list
+# pm2 stop macos-widget
+# pm2 restart macos-widget
+```
+
+</details>
+
 **features**
 
 - Pre-installed VSCode/Cursor extensions on remote
@@ -31,6 +57,7 @@ https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
 `cuvette` is mainly a bag of terminal utilities:
 
 ```sh
+gpus # get free gpus
 bl # use interactive session launcher
 bd # show current session
 bdall # show all jobs
@@ -44,6 +71,8 @@ blogs # get logs for job
 bstream # stream logs for job
 bcreate # create workspace
 bsecrets # add secrets to workspace
+blist # list secrets in workspace
+bsync # sync secrets to workspace
 bpriority # modify priority for all running experiments in a workspace
 brestart # restart failed experiments in a workspace
 ```
@@ -53,10 +82,6 @@ brestart # restart failed experiments in a workspace
 ### migration todos
 
 - [ ] Get macos widget working
-- [ ] `bcreate`
-- [ ] `bsecrets`
-- [ ] `bsecrets_davidh`
-- [ ] `bsecretslist`
 - [ ] A command to copy one secret from one workspace to another
 - [ ] `l40`, `a100`, `h100`, `b200`, `cpu`
 

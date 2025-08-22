@@ -74,3 +74,19 @@ def ai2cleanup():
     if returncode != 0:
         raise RuntimeError(f"Cleanup failed: {stderr}")
     return stdout
+
+
+def ai2_ssh():
+    cmd = "ssh ai2"
+    stdout, stderr, returncode = run_command(cmd)
+    if returncode != 0:
+        raise RuntimeError(f"Failed to SSH into ai2: {stderr}")
+    return stdout
+
+
+def beaker_session_stop():
+    cmd = "beaker session stop"
+    stdout, stderr, returncode = run_command(cmd)
+    if returncode != 0:
+        raise RuntimeError(f"Failed to stop beaker session: {stderr}")
+    return stdout

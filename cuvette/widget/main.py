@@ -147,9 +147,15 @@ class GPUMonitorApp(rumps.App):
             self.menu.add(rumps.MenuItem(f"Error: {str(e)}"))
 
 
-if __name__ == "__main__":
+def main():
+    if sys.version_info >= (3, 11):
+        raise RuntimeError("Widget requires Python <= 3.10 or lower due to rumps / _tkinter compatibility")
+
     try:
         GPUMonitorApp().run()
     except Exception as e:
         logging.error(f"Error: {str(e)}", exc_info=True)
-        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
