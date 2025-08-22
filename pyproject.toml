@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuvette"
-version = "0.2.3"
+version = "0.2.4"
 requires-python = ">=3.8,<=3.10" # <= 3.10 for widget
 dependencies = [
     "beaker-py==1.36.2",
@@ -54,6 +54,9 @@ all = ["cuvette[dev]"]
 
 [tool.setuptools]
 include-package-data = true
+
+[tool.setuptools.package-data]
+cuvette = ["figlet/fonts/*.flf"]
 
 [tool.setuptools.packages.find]
 where = ["."]
