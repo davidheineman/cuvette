@@ -1,4 +1,4 @@
-## cuvette
+e## cuvette
 
 a tiny wrapper around Beaker tooling. pairs well with [davidheineman/beaker_image](https://github.com/davidheineman/beaker_image).
 
@@ -11,46 +11,6 @@ pip install cuvette
 ### demo
 
 https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
-
-**Also:** MacOS toolbar extension to show free GPUs, and currently running jobs! Instructions in [tools/macos_widget/README.md](tools/macos_widget/README.md)
-
-<p align="center">
-<img width="243" alt="demo-mac-plugin" src="https://github.com/user-attachments/assets/d648a0bb-b787-45f8-b5ac-7542eeb4a654" />
-</p>
-
-
-<details>
-<summary>widget install instructions</summary>
-
-```sh
-# install widget dependencies
-pip install "cuvette[widget]"
-
-# setup
-brew install libffi
-npm install -g pm2
-
-# to test
-bwidget
-
-# to run (using a pm2 background process)
-pm2 start bwidget --name "macos-widget" --interpreter python
-pm2 save
-pm2 startup
-# pm2 list
-# pm2 stop macos-widget
-# pm2 restart macos-widget
-```
-
-</details>
-
-**features**
-
-- Pre-installed VSCode/Cursor extensions on remote
-- No saving API keys in plain-text in WEKA
-- Auto-update `~/.ssh/config` SSH host (no manually entering `ssh phobos-cs-aus-452.reviz.ai2.in:32785` to connect to a host)
-- Launch remote VSCode from terminal in one command (`ai2code your_folder`)
-- GUI launcher (`bl`) with cluster descriptions (no fiddling with `beaker session create`)
 
 ### commands
 
@@ -112,6 +72,40 @@ bsync ai2/davidh --all
 blist ai2/davidh
 ```
 
+
+</details>
+
+### widget
+
+MacOS toolbar extension to show free GPUs, and currently running jobs!
+
+<p align="center">
+<img width="243" alt="demo-mac-plugin" src="https://github.com/user-attachments/assets/d648a0bb-b787-45f8-b5ac-7542eeb4a654" />
+</p>
+
+
+<details>
+<summary>widget install instructions</summary>
+
+```sh
+# install widget dependencies
+pip install "cuvette[widget]"
+
+# setup
+brew install libffi
+npm install -g pm2
+
+# to test
+bwidget
+
+# to run (using a pm2 background process)
+pm2 start bwidget --name "macos-widget" --interpreter python
+pm2 save
+pm2 startup
+# pm2 list
+# pm2 stop macos-widget
+# pm2 restart macos-widget
+```
 
 </details>
 
