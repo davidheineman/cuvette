@@ -85,7 +85,17 @@ def ai2_ssh():
 
 
 def beaker_session_stop():
-    cmd = "beaker session stop"
+    parser = argparse.ArgumentParser(description="Launch remote Cursor on ai2 host")
+    parser.add_argument(
+        "session_name", nargs="?", default=None, help="Name of session to stop"
+    )
+
+    args = parser.parse_args()
+
+    if args.session_name is not None:
+        cmd = f"beaker session stop {args.session_name}"
+    else:
+        cmd = "beaker session stop"
     stdout, stderr, returncode = run_command(cmd)
     if returncode != 0:
         raise RuntimeError(f"Failed to stop beaker session: {stderr}")
