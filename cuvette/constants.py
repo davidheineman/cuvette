@@ -4,8 +4,6 @@ CLUSTERS = [
         "Any CPU  (       CPU, 1wk lim, WEKA)",
         [
             "ai2/phobos-cirrascale",  # fast session starts
-            # "ai2/neptune-cirrascale",
-            # "ai2/triton-cirrascale",
         ],
         "Any cluster supporting 1 week CPU sessions",
         0,
@@ -93,12 +91,6 @@ CLUSTERS = [
         1,
     ),
     (
-        "Callisto ( 80GB H100, 1dy lim, NA)",
-        "ai2/callisto-cirrascale",
-        "A single node of 8 H100s that appeared to be slower than the rest of Jupiter. They put it on a dedicated cluster for now.",
-        1,
-    ),
-    (
         "Neptune CPU",
         [
             "ai2/neptune-cirrascale",
@@ -112,6 +104,14 @@ CLUSTERS = [
             "ai2/triton-cirrascale",
         ],
         "1 week CPU session",
+        0,
+    ),
+    (
+        "Saturn CPU",
+        [
+            "ai2/saturn-cirrascale",
+        ],
+        "1 day CPU session",
         0,
     ),
 ]
