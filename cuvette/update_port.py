@@ -80,7 +80,7 @@ def get_host(session_id=None):
 
     return host_name, server_port
 
-def update_ssh_config(host_name, server_port):
+def update_ssh_config(host_name: str, server_port):
     # SSH config file path
     config_file = Path.home() / ".ssh" / "config"
     config_file.parent.mkdir(exist_ok=True)
@@ -106,6 +106,9 @@ def update_ssh_config(host_name, server_port):
             new_config_lines.append(line)
     
     config_content = '\n'.join(new_config_lines)
+
+    # Remove ".reviz.ai2.in" from hostname
+    host_name = host_name.replace(".reviz.ai2.in", "")
 
     # Add ai2 hosts
     config_content += CONFIG.format(name="ai2", username="root", hostname=host_name, port=server_port)
