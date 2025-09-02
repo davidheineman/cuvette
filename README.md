@@ -35,7 +35,10 @@ blist # list secrets in workspace
 bsync # sync secrets to workspace
 bpriority # modify priority for all running experiments in a workspace
 brestart # restart failed experiments in a workspace
+hosts # see all hosts (useful for `bl -H`)
 ```
+
+**New!** Launch with specific hostnames using `bl -H`. E.g. `bl -H titan-cs-aus-463.reviz.ai2.in -g 0`
 
 <details>
 <summary>configuring secrets</summary>

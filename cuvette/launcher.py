@@ -10,6 +10,7 @@ import sys
 import textwrap
 import threading
 import time
+from typing import Optional
 
 from cuvette.constants import CLUSTERS
 from cuvette.figlet import Figlet
@@ -27,6 +28,7 @@ beaker session create \
     --name {name} \
     {gpu_command} \
     {cluster_command} \
+    {hostname_command} \
     --image beaker://davidh/davidh-interactive \
     --workspace {workspace} \
     --priority {priority} \
@@ -221,7 +223,41 @@ class ClusterSelector:
         )
         window.addstr(max_y - 1, left_offset, controls.center(display_width), curses.color_pair(2))
 
-    def draw_process_output(self, window, cluster_name: str, num_gpus: int):
+    def draw_process_output(
+        self, 
+        window, 
+        cluster_name: Optional[str|list] = None, 
+        host_name: Optional[str|list] = None, 
+        num_gpus: int = 0
+    ):
+        gpu_command = ""
+        if num_gpus > 0:
+            gpu_command = f"--gpus {num_gpus}"  # Use the selected number of GPUs
+
+        cluster_command = ""
+        if cluster_name is not None:
+            if not isinstance(cluster_name, list):
+                cluster_name = [cluster_name]
+            for _cluster_name in cluster_name:
+                cluster_command += f"--cluster {_cluster_name} "
+
+        hostname_command = ""
+        if host_name is not None:
+            if not isinstance(host_name, list):
+                host_name = [host_name]
+            for _host_name in host_name:
+                hostname_command += f"--hostname {_host_name} "
+
+        command = LAUNCH_COMMAND.format(
+            name=SESSION_NAME,
+            workspace=SESSION_WORKSPACE,
+            priority=SESSION_PRIORITY,
+            gpu_command=gpu_command,
+            cluster_command=cluster_command,
+            hostname_command=hostname_command,
+        )
+        command = command.replace("  ", " ")
+
         max_y, max_x = window.getmaxyx()
 
         # Clear screen but keep header
@@ -254,10 +290,10 @@ class ClusterSelector:
         )
 
         # Draw quick start command
-        if not isinstance(cluster_name, list):
-            cluster_name = [cluster_name]
         gpu_flag = f" -g {num_gpus}" if num_gpus > 0 else ""
-        quick_start = f"bl -c {' '.join(cluster_name)}{gpu_flag}"
+        cluster_flag = f" -c {' '.join(cluster_name)}" if cluster_name is not None else ""
+        host_flag = f" -H {' '.join(host_name)}" if host_name is not None else ""
+        quick_start = f"bl{cluster_flag}{host_flag}{gpu_flag}"
         window.addstr(
             header_height + 1,
             4,
@@ -283,23 +319,6 @@ class ClusterSelector:
             window.refresh()
             window.getch()
             return False
-
-        gpu_command = ""
-        if num_gpus > 0:
-            gpu_command = f"--gpus {num_gpus}"  # Use the selected number of GPUs
-
-        cluster_command = ""
-        for _cluster_name in cluster_name:
-            cluster_command += f"--cluster {_cluster_name} "
-
-        command = LAUNCH_COMMAND.format(
-            name=SESSION_NAME,
-            workspace=SESSION_WORKSPACE,
-            priority=SESSION_PRIORITY,
-            gpu_command=gpu_command,
-            cluster_command=cluster_command,
-        )
-        command = command.replace("  ", " ")
 
         output_queue = queue.Queue()
         spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
@@ -553,9 +572,9 @@ class ClusterSelector:
         # Hide the cursor
         curses.curs_set(0)
 
-    def run_direct(self, stdscr, cluster_name, num_gpus):
+    def run_direct(self, stdscr, cluster_name, host_name, num_gpus):
         self.setup(stdscr)
-        self.draw_process_output(stdscr, cluster_name, num_gpus)
+        self.draw_process_output(stdscr, cluster_name, host_name, num_gpus)
 
     def run(self, stdscr):
         self.setup(stdscr)
@@ -585,7 +604,7 @@ class ClusterSelector:
             elif key in [ord(str(i)) for i in range(1, 9)]:  # Handle keys 1-8
                 num_gpus = int(chr(key))
                 _, cluster_name, _, _ = self.clusters[self.current_selection]
-                success = self.draw_process_output(stdscr, cluster_name, num_gpus)
+                success = self.draw_process_output(stdscr, cluster_name, None, num_gpus)
                 if success:
                     return self.clusters[self.current_selection][0]
                 else:
@@ -595,7 +614,7 @@ class ClusterSelector:
                 _, cluster_name, _, default_n_gpus = self.clusters[self.current_selection]
                 # Default to 1 GPU for GPU clusters, 0 for CPU clusters
                 num_gpus = default_n_gpus
-                success = self.draw_process_output(stdscr, cluster_name, num_gpus)
+                success = self.draw_process_output(stdscr, cluster_name, None, num_gpus)
                 if success:
                     return self.clusters[self.current_selection][0]
                 else:
@@ -667,16 +686,18 @@ def main():
     try:
         parser = argparse.ArgumentParser(description="Beaker Launch Tool")
         parser.add_argument("-c", "--clusters", nargs="+", help="Cluster names")
+        parser.add_argument("-H", "--hosts", nargs="+", help="Host names")
         parser.add_argument("-g", "--gpus", type=int, help="Number of GPUs")
         args = parser.parse_args()
 
         selector = ClusterSelector(max_width=100)
 
-        if args.clusters:
+        if args.clusters or args.hosts:
             # Direct launch with command line arguments
             success = curses.wrapper(
                 selector.run_direct,
                 args.clusters,
+                args.hosts,
                 args.gpus or 0,  # Default to no GPUs if not specified
             )
             if success and hasattr(selector, "final_output_lines"):

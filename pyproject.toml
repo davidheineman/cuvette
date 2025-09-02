@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuvette"
-version = "0.2.6"
+version = "0.2.7"
 requires-python = ">=3.8,<=3.10" # <= 3.10 for widget
 dependencies = [
     "beaker-py==1.36.2",
@@ -28,6 +28,7 @@ bpriority = "cuvette.scripts.change_priority:main"
 bstop = "cuvette.scripts.stop_jobs:main"
 bparse = "cuvette.scripts.parse_logs:main"
 gpus = "cuvette.scripts.get_free_gpus:main"
+hosts = "cuvette.scripts.list_hosts:main"
 ai2code = "cuvette.aliases:ai2code"
 ai2cursor = "cuvette.aliases:ai2cursor"
 ai2codereset = "cuvette.aliases:ai2codereset"
