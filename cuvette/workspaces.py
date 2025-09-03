@@ -4,6 +4,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 from beaker import Beaker
+import beaker
 
 SECRETS_ROOT = Path(__file__).parent.parent / "secrets"
 
@@ -18,7 +19,7 @@ GENERAL_SECRETS = [
     {"name": "HF_TOKEN", "type": "env", "env": "HF_TOKEN"},
     {"name": "HF_TOKEN_READ_ONLY", "type": "env", "env": "HF_TOKEN"},
     {"name": "OPENAI_API_KEY", "type": "env", "env": "OPENAI_API_KEY"},
-    {"name": "openai_api_key", "type": "env", "env": "openai_api_key"},
+    {"name": "openai_api_key", "type": "env", "env": "OPENAI_API_KEY"},
     {"name": "ANTHROPIC_API_KEY", "type": "env", "env": "ANTHROPIC_API_KEY"},
     {"name": "BEAKER_TOKEN", "type": "env", "env": "BEAKER_TOKEN"},
     {"name": "WANDB_API_KEY", "type": "env", "env": "WANDB_API_KEY"},
@@ -36,6 +37,8 @@ GENERAL_SECRETS = [
     {"name": "R2_ACCESS_KEY_ID", "type": "env", "env": "R2_ACCESS_KEY_ID"},
     {"name": "lambda_AWS_ACCESS_KEY_ID", "type": "env", "env": "lambda_AWS_ACCESS_KEY_ID"},
     {"name": "lambda_AWS_SECRET_ACCESS_KEY", "type": "env", "env": "lambda_AWS_SECRET_ACCESS_KEY"},
+    {"name": "DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
+    {"name": "DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
 ]
 
 
@@ -69,6 +72,10 @@ USER_SECRETS = [
     {"name": "DAVIDH_GITHUB_TOKEN", "type": "env", "env": "GITHUB_TOKEN"},
     {"name": "lambda_AWS_ACCESS_KEY_ID", "type": "env", "env": "lambda_AWS_ACCESS_KEY_ID"},
     {"name": "lambda_AWS_SECRET_ACCESS_KEY", "type": "env", "env": "lambda_AWS_SECRET_ACCESS_KEY"},
+    {"name": "davidh_DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
+    {"name": "DAVIDH_DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
+    {"name": "davidh_DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
+    {"name": "DAVIDH_DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
 ]
 
 
@@ -125,12 +132,15 @@ def _sync_secret(bk, workspace_name, entry):
     value = value.strip()
     
     # Write secret to workspace
-    bk.secret.write(
-        secret_name,
-        value,
-        workspace=workspace_name
-    )
-    print(f"Added: {secret_name}")
+    try:
+        bk.secret.write(
+            secret_name,
+            value,
+            workspace=workspace_name
+        )
+        print(f"Added: {secret_name}")
+    except beaker.exceptions.BeakerPermissionsError as e:
+        print(f"\033[31mFailed: {secret_name} ({e})\033[0m")
 
 
 def sync_secrets(workspace_name, secrets_config):

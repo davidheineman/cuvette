@@ -58,6 +58,8 @@ beaker session create \
     --secret-env WANDB_API_KEY=davidh_WANDB_API_KEY \
     --secret-env lambda_AWS_ACCESS_KEY_ID=lambda_AWS_ACCESS_KEY_ID \
     --secret-env lambda_AWS_SECRET_ACCESS_KEY=lambda_AWS_SECRET_ACCESS_KEY \
+    --secret-env DOCKERHUB_USERNAME=davidh_DOCKERHUB_USERNAME \
+    --secret-env DOCKERHUB_TOKEN=davidh_DOCKERHUB_TOKEN \
     -- /entrypoint.sh\
 """
 
