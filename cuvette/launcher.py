@@ -93,6 +93,7 @@ QUOTES = [
     "I think that the most exciting areas over the next five years will be really understanding text and videos. I will be disappointed if in five years’ time we do not have something that can watch a YouTube video and tell a story about what happened. In a few years time we will put [Deep Learning] on a chip that fits into someone’s ear and have an English-decoding chip that’s just like a real Babel fish. (Hinton, 2014 in a Reddit AMA)",  # https://www.reddit.com/r/MachineLearning/comments/2lmo0l/ama_geoffrey_hinton
     "Intellectually I think that NLP is fascinating, allowing us to focus on highly structured inference problems, on issues that go to the core of ‘what is thought’ but remain eminently practical, and on a technology that surely would make the world a better place (Michael Jordan, 2014)",  # https://watermark02.silverchair.com/coli_a_00239.pdf <- Referenced here
     "DL appears outwardly to be driven entirely by engineering concerns, but its connectionist roots are still strong and, as Pater documents, connectionism was founded on many of the same core principles as modern linguistics. Both fields can achieve more if they work together (Potts, 2018).",  # https://web.stanford.edu/~cgpotts/temp/pater-commentary-by-potts.pdf
+    "Verification, the key to AI (Sutton, 2001)" # https://dennyzhou.github.io/LLM-Reasoning-Stanford-CS-25.pdf#page=22
 ]
 
 
@@ -123,12 +124,7 @@ class ClusterSelector:
         random.shuffle(fonts)
         self.figlet.setFont(font=fonts[0])
         self.bg_color = curses.COLOR_BLACK
-        try:
-            import darkdetect  # pip install darkdetect
-
-            self.is_dark_mode = darkdetect.isDark()
-        except ImportError:
-            self.is_dark_mode = False
+        self.is_dark_mode = False
 
     def setup_colors(self):
         # Define colors based on theme
