@@ -94,7 +94,9 @@ QUOTES = [
     "Intellectually I think that NLP is fascinating, allowing us to focus on highly structured inference problems, on issues that go to the core of ‘what is thought’ but remain eminently practical, and on a technology that surely would make the world a better place (Michael Jordan, 2014)",  # https://watermark02.silverchair.com/coli_a_00239.pdf <- Referenced here
     "DL appears outwardly to be driven entirely by engineering concerns, but its connectionist roots are still strong and, as Pater documents, connectionism was founded on many of the same core principles as modern linguistics. Both fields can achieve more if they work together (Potts, 2018).",  # https://web.stanford.edu/~cgpotts/temp/pater-commentary-by-potts.pdf
     "Verification, the key to AI (Sutton, 2001)", # https://dennyzhou.github.io/LLM-Reasoning-Stanford-CS-25.pdf#page=22
-    "The truth always turns out to be simpler than you thought. (Feynman)" # https://www.math.ucla.edu/~tao/quotes.html
+    "The truth always turns out to be simpler than you thought. (Feynman)", # https://www.math.ucla.edu/~tao/quotes.html
+    "Meaning is not a unique property of language, but a general characteristic of human activity ... We cannot say that each morpheme or word has a single or central meaning, or even that it has a continuous or coherent range of meanings ... there are two separate uses and meanings of language – the concrete ... and the abstract (Harris, Distributional Structure 1954).)" # https://aclanthology.org/2020.emnlp-main.703
+    "In order to talk about concepts, we must understand the importance of mental models... we set up a model of the world which serves as a framework in which to organize our thoughts. We abstract the presence of particular objects, having properties, and entering into events and relationships (Winograd, 1971)." # https://aclanthology.org/2020.emnlp-main.703
 ]
 
 

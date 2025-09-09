@@ -67,8 +67,8 @@ def get_job_data(username, sessions_only=True):
             elif env.name == "BEAKER_ASSIGNED_GPU_COUNT":
                 gpu_count = env.value
 
-        if job.execution:
-            gpu_count = str(job.execution.spec.resources.gpu_count)
+        # if job.execution:
+        #     gpu_count = str(job.execution.spec.resources.gpu_count)
 
         workload = None
         if job.session and job.session.env_vars:
