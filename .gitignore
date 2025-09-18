@@ -5,3 +5,4 @@ secrets
 .ruff_cache
 .mypy_cache
 dist
+workspace
