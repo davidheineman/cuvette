@@ -16,11 +16,11 @@ def get_default_user():
 
 
 def gather_experiments(author_list, workspace_name, limit=2000) -> List[Experiment]:
-    """Gather all failed jobs"""
+    """Gather all jobs"""
     beaker = Beaker.from_env()
     experiments = []
 
-    # Nice bookkeeping to see how many failed per author - a good gut check, if nothing else
+    # Nice bookkeeping to see how many jobs per author - a good gut check, if nothing else
     num_author_exps = {}
     for author in author_list:
         num_author_exps[author] = 0
@@ -38,7 +38,7 @@ def gather_experiments(author_list, workspace_name, limit=2000) -> List[Experime
         experiments.append(exp)
         num_author_exps[author] += 1
 
-    print(f"Total experiments that failed for authors {author_list}: {len(experiments)}")
+    print(f"Total experiments for authors {author_list}: {len(experiments)}")
     for author, count in num_author_exps.items():
-        print(f"Author {author} had {count} failed experiments")
+        print(f"Author {author} had {count} experiments")
     return experiments
