@@ -20,6 +20,14 @@ Host {name}
     ControlMaster auto
     ControlPath ~/.ssh/ai2locks/cm-%r@%h:%p
     ControlPersist yes
+    # QoL for connection:
+    ServerAliveInterval 30
+    ServerAliveCountMax 6
+    TCPKeepAlive yes
+    # Faster reconnects & fewer prompts:
+    ControlMaster auto
+    ControlPersist 600
+    ControlPath ~/.ssh/cm-%r@%h:%p
 """
 
 
