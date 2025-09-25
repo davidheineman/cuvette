@@ -117,3 +117,16 @@ pm2 startup
 ### todos
 
 - [ ] `l40`, `a100`, `h100`, `b200`, `cpu`
+
+### tips
+
+1. Working with Cursor on remote? Add this to your `~/Library/Application Support/Cursor/User/settings.json`
+
+```json
+"remote.SSH.enableDynamicForwarding": false,
+"remote.SSH.useExecServer": false,
+"remote.SSH.lockfilesInTmp": true,
+"remote.SSH.serverPickPortsFromRange": {
+    "ai2": "50000-50100"
+}
+```
