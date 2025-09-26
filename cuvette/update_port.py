@@ -24,10 +24,7 @@ Host {name}
     ServerAliveInterval 30
     ServerAliveCountMax 6
     TCPKeepAlive yes
-    # Faster reconnects & fewer prompts:
-    ControlMaster auto
-    ControlPersist 600
-    ControlPath ~/.ssh/cm-%r@%h:%p
+    # Compression yes
 """
 
 
