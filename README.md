@@ -123,7 +123,8 @@ pm2 startup
 1. Working with Cursor on remote? Add this to your `~/Library/Application Support/Cursor/User/settings.json`
 
 ```json
-"remote.SSH.enableDynamicForwarding": false,
+"remote.SSH.useLocalServer": false,
+"remote.SSH.enableDynamicForwarding": true,
 "remote.SSH.useExecServer": false,
 "remote.SSH.lockfilesInTmp": true,
 "remote.SSH.serverPickPortsFromRange": {
