@@ -8,6 +8,12 @@ a tiny wrapper around Beaker tooling. pairs well with [davidheineman/beaker_imag
 pip install cuvette
 ```
 
+`cuvette` ❤️ `uv run`!
+
+```sh
+uv run --with cuvette blist -w ai2/davidh
+```
+
 ### demo
 
 https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
