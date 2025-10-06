@@ -2,7 +2,7 @@ import subprocess
 from typing import List
 
 from beaker import Beaker, Experiment
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 

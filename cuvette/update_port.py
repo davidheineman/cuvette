@@ -3,7 +3,7 @@ from pathlib import Path
 
 from cuvette.scripts.get_jobs import get_job_data
 from cuvette.scripts.utils import get_default_user, run_command
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 

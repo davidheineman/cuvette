@@ -8,7 +8,7 @@ from beaker import BeakerError, Experiment, Job
 from deviousutils.openai import generate_gpt, openai_init
 
 from cuvette.scripts.stream_logs import stream_experiment_logs
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 from cuvette.scripts.utils import gather_experiments, get_default_user
 
 setup_cuvette_warnings()

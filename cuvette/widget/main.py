@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scripts.get_free_gpus import get_free_gpus
 from scripts.get_jobs import get_job_data
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 

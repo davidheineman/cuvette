@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from beaker import Beaker
 import beaker
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 

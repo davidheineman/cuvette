@@ -14,7 +14,7 @@ from typing import Optional
 
 from cuvette.constants import CLUSTERS
 from cuvette.figlet import Figlet
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 

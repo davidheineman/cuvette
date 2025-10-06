@@ -3,7 +3,7 @@ import sys
 
 from beaker import Beaker, Job
 from beaker.exceptions import JobNotFound
-from cuvette.warnings import setup_cuvette_warnings
+from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
 
