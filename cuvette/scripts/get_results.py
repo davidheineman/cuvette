@@ -6,6 +6,9 @@ from beaker import Beaker, Experiment
 from tqdm import tqdm
 
 from cuvette.scripts.utils import gather_experiments, get_default_user
+from cuvette.warnings import setup_cuvette_warnings
+
+setup_cuvette_warnings()
 
 def download_job(job, output_dir):
     beaker = Beaker.from_env()

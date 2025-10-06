@@ -5,6 +5,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 from beaker import Beaker
 import beaker
+from cuvette.warnings import setup_cuvette_warnings
+
+setup_cuvette_warnings()
 
 SECRETS_ROOT = Path(__file__).parent.parent / "secrets"
 

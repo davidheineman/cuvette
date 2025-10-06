@@ -2,6 +2,9 @@ import subprocess
 from typing import List
 
 from beaker import Beaker, Experiment
+from cuvette.warnings import setup_cuvette_warnings
+
+setup_cuvette_warnings()
 
 
 def run_command(cmd, shell=True):

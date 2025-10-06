@@ -7,6 +7,9 @@ from rich.console import Console
 from rich.table import Table
 
 from cuvette.scripts.utils import get_default_user
+from cuvette.warnings import setup_cuvette_warnings
+
+setup_cuvette_warnings()
 
 
 def categorize_and_sort_jobs(jobs):

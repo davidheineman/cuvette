@@ -3,6 +3,9 @@ import sys
 
 from beaker import Beaker, Job
 from beaker.exceptions import JobNotFound
+from cuvette.warnings import setup_cuvette_warnings
+
+setup_cuvette_warnings()
 
 
 def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = False):
