@@ -11,7 +11,7 @@ setup_cuvette_warnings()
 
 SECRETS_ROOT = Path(__file__).parent.parent / "secrets"
 
-GENERAL_SECRETS = [
+GENERAL_FILE_SECRETS = [
     {"name": "ssh-key", "type": "file", "path": ".ssh/id_rsa"},
     {"name": "aws-creds", "type": "file", "path": ".aws/credentials"},
     {"name": "AWS_CREDENTIALS", "type": "file", "path": ".aws/credentials"},
@@ -19,6 +19,9 @@ GENERAL_SECRETS = [
     {"name": "AWS_CONFIG", "type": "file", "path": ".aws/config"},
     {"name": "gcp-creds", "type": "file", "path": ".gcp/service-account.json"},
     {"name": "kaggle-creds", "type": "file", "path": ".kaggle/kaggle.json"},
+]
+
+GENERAL_ENV_SECRETS = [
     {"name": "HF_TOKEN", "type": "env", "env": "HF_TOKEN"},
     {"name": "HF_TOKEN_READ_ONLY", "type": "env", "env": "HF_TOKEN"},
     {"name": "OPENAI_API_KEY", "type": "env", "env": "OPENAI_API_KEY"},
@@ -42,10 +45,11 @@ GENERAL_SECRETS = [
     {"name": "lambda_AWS_SECRET_ACCESS_KEY", "type": "env", "env": "lambda_AWS_SECRET_ACCESS_KEY"},
     {"name": "DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
     {"name": "DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
+    {"name": "DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
 ]
 
 
-USER_SECRETS = [
+USER_FILE_SECRETS = [
     {"name": "davidh-ssh-key", "type": "file", "path": ".ssh/id_rsa"},
     {"name": "davidh-aws-creds", "type": "file", "path": ".aws/credentials"},
     {"name": "davidh_AWS_CREDENTIALS", "type": "file", "path": ".aws/credentials"},
@@ -53,6 +57,10 @@ USER_SECRETS = [
     {"name": "davidh_AWS_CONFIG", "type": "file", "path": ".aws/config"},
     {"name": "davidh-gcp-creds", "type": "file", "path": ".gcp/service-account.json"},
     {"name": "davidh-kaggle-creds", "type": "file", "path": ".kaggle/kaggle.json"},
+]
+
+
+USER_ENV_SECRETS = [
     {"name": "davidh_HF_TOKEN", "type": "env", "env": "HF_TOKEN"},
     {"name": "davidh_HF_TOKEN_READ_ONLY", "type": "env", "env": "HF_TOKEN"},
     {"name": "davidh_OPENAI_API_KEY", "type": "env", "env": "OPENAI_API_KEY"},
@@ -79,6 +87,8 @@ USER_SECRETS = [
     {"name": "DAVIDH_DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
     {"name": "davidh_DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
     {"name": "DAVIDH_DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
+    {"name": "davidh_DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
+    {"name": "DAVIDH_DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
 ]
 
 
@@ -173,9 +183,9 @@ def sync():
     args = parser.parse_args()
     
     if args.all:
-        sync_secrets(args.workspace, GENERAL_SECRETS + USER_SECRETS)
+        sync_secrets(args.workspace, GENERAL_FILE_SECRETS + GENERAL_ENV_SECRETS + USER_FILE_SECRETS + USER_ENV_SECRETS)
     else:
-        sync_secrets(args.workspace, USER_SECRETS)
+        sync_secrets(args.workspace, USER_FILE_SECRETS + USER_ENV_SECRETS)
 
 
 def list_secrets():

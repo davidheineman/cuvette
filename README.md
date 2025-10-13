@@ -23,25 +23,37 @@ https://github.com/user-attachments/assets/4255e0be-b29d-40a0-ae9e-364ba7c9c446
 `cuvette` is mainly a bag of terminal utilities:
 
 ```sh
-gpus # get free gpus
+### hosts info ###
+gpus # see free gpus
+hosts # see all hosts (useful for `bl -H`)
+
+### for session ###
 bl # use interactive session launcher
 bd # show current session
-bdall # show all jobs
-bstop # stop current session
-blist # list current sessions
+bs # stop current session
 bport # change port for "ai2" host
+
+### for experiments ###
+bdall # show all jobs
+blist # list all jobs
+bstop # stop jobs
+bpriority # modify priority for currently running jobs
+brestart # restart failed jobs
+
+### for environment ###
 ai2code . # launch remote code
 ai2cursor . # launch remote cursor
 ai2cleanup # run ai2 cleaning utils
+
+### for logs ###
 blogs # get logs for job
 bstream # stream logs for job
+
+### for workspaces / secrets ###
 bcreate # create workspace
 bsecrets # add secrets to workspace
 blist # list secrets in workspace
 bsync # sync secrets to workspace
-bpriority # modify priority for all running experiments in a workspace
-brestart # restart failed experiments in a workspace
-hosts # see all hosts (useful for `bl -H`)
 ```
 
 **New!** Launch with specific hostnames using `bl -H`. E.g. `bl -H titan-cs-aus-463.reviz.ai2.in -g 0`

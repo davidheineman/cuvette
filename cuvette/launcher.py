@@ -15,6 +15,7 @@ from typing import Optional
 from cuvette.constants import CLUSTERS
 from cuvette.figlet import Figlet
 from cuvette.warning_utils import setup_cuvette_warnings
+from cuvette.secrets import USER_ENV_SECRETS, USER_FILE_SECRETS
 
 setup_cuvette_warnings()
 
@@ -44,25 +45,8 @@ beaker session create \
     --mount src=weka,ref=oe-training-default,dst=/oe-training-default \
     --mount src=weka,ref=oe-data-default,dst=/oe-data-default \
     --mount src=weka,ref=oe-adapt-default,dst=/oe-adapt-default \
-    --mount src=secret,ref=davidh-ssh-key,dst=/root/.ssh/id_rsa \
-    --mount src=secret,ref=davidh-aws-creds,dst=/root/.aws/credentials \
-    --mount src=secret,ref=davidh-gcp-creds,dst=/root/.gcp/service-account.json \
-    --mount src=secret,ref=davidh-kaggle-creds,dst=/root/.kaggle/kaggle.json \
-    --secret-env AWS_CONFIG=davidh_AWS_CONFIG \
-    --secret-env AWS_CREDENTIALS=davidh_AWS_CREDENTIALS \
-    --secret-env davidh_COMET_API_KEY=davidh_COMET_API_KEY \
-    --secret-env COMET_API_KEY=davidh_COMET_API_KEY \
-    --secret-env R2_ACCESS_KEY_ID=davidh_R2_ACCESS_KEY_ID \
-    --secret-env R2_SECRET_ACCESS_KEY=davidh_R2_SECRET_ACCESS_KEY \
-    --secret-env HF_TOKEN=davidh_HF_TOKEN \
-    --secret-env OPENAI_API_KEY=davidh_OPENAI_API_KEY \
-    --secret-env ANTHROPIC_API_KEY=davidh_ANTHROPIC_API_KEY \
-    --secret-env BEAKER_TOKEN=davidh_BEAKER_TOKEN \
-    --secret-env WANDB_API_KEY=davidh_WANDB_API_KEY \
-    --secret-env lambda_AWS_ACCESS_KEY_ID=lambda_AWS_ACCESS_KEY_ID \
-    --secret-env lambda_AWS_SECRET_ACCESS_KEY=lambda_AWS_SECRET_ACCESS_KEY \
-    --secret-env DOCKERHUB_USERNAME=davidh_DOCKERHUB_USERNAME \
-    --secret-env DOCKERHUB_TOKEN=davidh_DOCKERHUB_TOKEN \
+    {user_file_secrets} \
+    {user_env_secrets} \
     -- /entrypoint.sh\
 """
 
@@ -254,6 +238,23 @@ class ClusterSelector:
             for _host_name in host_name:
                 hostname_command += f"--hostname {_host_name} "
 
+        user_file_secrets_str = ""
+        dst_seen = set()
+        for user_file_secret in USER_FILE_SECRETS:
+            ref, dst = user_file_secret['name'], f"/root/{user_file_secret['path']}"
+            
+            # No duplicate destinations for mounts. Only keep the first
+            if dst in dst_seen:
+                continue
+            dst_seen.add(dst)
+            
+            user_file_secrets_str += f"--mount src=secret,ref={ref},dst={dst} "
+        
+        user_env_secrets_str = ""
+        for user_env_secret in USER_ENV_SECRETS:
+            local_name, beaker_name = user_env_secret['env'], user_env_secret['name']
+            user_env_secrets_str += f"--secret-env {local_name}={beaker_name} "
+
         command = LAUNCH_COMMAND.format(
             name=SESSION_NAME,
             workspace=SESSION_WORKSPACE,
@@ -261,6 +262,8 @@ class ClusterSelector:
             gpu_command=gpu_command,
             cluster_command=cluster_command,
             hostname_command=hostname_command,
+            user_file_secrets=user_file_secrets_str,
+            user_env_secrets=user_env_secrets_str,
         )
         command = command.replace("  ", " ")
 
