@@ -46,6 +46,7 @@ GENERAL_ENV_SECRETS = [
     {"name": "DOCKERHUB_USERNAME", "type": "env", "env": "DOCKERHUB_USERNAME"},
     {"name": "DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
     {"name": "DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
+    {"name": "TINKER_API_KEY", "type": "env", "env": "TINKER_API_KEY"},
 ]
 
 
@@ -89,6 +90,8 @@ USER_ENV_SECRETS = [
     {"name": "DAVIDH_DOCKERHUB_TOKEN", "type": "env", "env": "DOCKERHUB_TOKEN"},
     {"name": "davidh_DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
     {"name": "DAVIDH_DOCENT_API_KEY", "type": "env", "env": "DOCENT_API_KEY"},
+    {"name": "davidh_TINKER_API_KEY", "type": "env", "env": "TINKER_API_KEY"},
+    {"name": "DAVIDH_TINKER_API_KEY", "type": "env", "env": "TINKER_API_KEY"},
 ]
 
 
