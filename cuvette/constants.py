@@ -3,7 +3,8 @@ CLUSTERS = [
     (
         "Any CPU  (       CPU, 1wk lim, WEKA)",
         [
-            "ai2/phobos-cirrascale",  # fast session starts
+            # "ai2/phobos-cirrascale",
+            "ai2/hammond",
         ],
         "Any cluster supporting 1 week CPU sessions",
         0,
@@ -41,6 +42,12 @@ CLUSTERS = [
         ],
         "Any cluster with 2 hour B200 sessions",
         1,
+    ),
+    (
+        "Hammond  (       CPU, 1wk lim, WEKA)",
+        "ai2/hammond",
+        "Debugging and data transfers - No GPUs, Ethernet (50 Gbps/server), WEKA storage, 1 week timeout",
+        0,
     ),
     (
         "Phobos   (       CPU, 1wk lim, WEKA)",
