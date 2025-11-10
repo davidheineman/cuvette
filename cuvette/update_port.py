@@ -120,7 +120,7 @@ def update_ssh_config(host_name: str, server_port):
 
     # Add ai2 hosts
     config_content += CONFIG.format(name="ai2", username="root", hostname=host_name, port=server_port)
-    config_content += CONFIG.format(name="ai2-root", username=SSH_USER, hostname=host_name, port=server_port)
+    config_content += CONFIG.format(name="ai2-root", username=SSH_USER, hostname=host_name, port=22)
 
     # Write updated config
     config_file.write_text(config_content)
