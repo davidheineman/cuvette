@@ -43,7 +43,6 @@ beaker session create \
     --workdir /oe-eval-default/davidh \
     --mount src=weka,ref=oe-eval-default,dst=/oe-eval-default \
     --mount src=weka,ref=oe-training-default,dst=/oe-training-default \
-    --mount src=weka,ref=oe-data-default,dst=/oe-data-default \
     --mount src=weka,ref=oe-adapt-default,dst=/oe-adapt-default \
     {user_file_secrets} \
     {user_env_secrets} \
