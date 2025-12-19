@@ -189,7 +189,7 @@ class ClusterSelector:
         window.addstr(max_y - 2, desc_x, "└" + "─" * menu_width + "┘", curses.color_pair(3))
 
         # Draw the clusters
-        for idx, (cluster, _, _, _) in enumerate(self.clusters):
+        for idx, cluster in enumerate(self.clusters):
             style = (
                 curses.color_pair(4) | curses.A_BOLD
                 if idx == self.current_selection
@@ -198,12 +198,12 @@ class ClusterSelector:
             window.addstr(
                 start_y + 3 + idx,
                 left_offset + 2,
-                f"{'●' if idx == self.current_selection else '○'} {cluster}",
+                f"{'●' if idx == self.current_selection else '○'} {cluster.name}",
                 style,
             )
 
         # Draw the description
-        _, _, description, _ = self.clusters[self.current_selection]
+        description = self.clusters[self.current_selection].description
         desc_lines = textwrap.wrap(description, width=menu_width - 4)
         for idx, line in enumerate(desc_lines):
             window.addstr(start_y + 3 + idx, desc_x + 2, line, curses.color_pair(1))
@@ -613,20 +613,20 @@ class ClusterSelector:
             # Add number key handling
             elif key in [ord(str(i)) for i in range(1, 9)]:  # Handle keys 1-8
                 num_gpus = int(chr(key))
-                _, cluster_name, _, _ = self.clusters[self.current_selection]
-                success = self.draw_process_output(stdscr, cluster_name, None, num_gpus)
+                cluster = self.clusters[self.current_selection]
+                success = self.draw_process_output(stdscr, cluster.clusters, None, num_gpus)
                 if success:
-                    return self.clusters[self.current_selection][0]
+                    return cluster.name
                 else:
                     continue
             # Add enter key handling with defaults
             elif key in [ord("\n"), ord(" ")]:
-                _, cluster_name, _, default_n_gpus = self.clusters[self.current_selection]
+                cluster = self.clusters[self.current_selection]
                 # Default to 1 GPU for GPU clusters, 0 for CPU clusters
-                num_gpus = default_n_gpus
-                success = self.draw_process_output(stdscr, cluster_name, None, num_gpus)
+                num_gpus = 1 if cluster.has_gpus else 0
+                success = self.draw_process_output(stdscr, cluster.clusters, None, num_gpus)
                 if success:
-                    return self.clusters[self.current_selection][0]
+                    return cluster.name
                 else:
                     continue
 

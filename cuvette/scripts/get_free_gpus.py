@@ -42,10 +42,8 @@ def get_cluster_free_gpus(cluster) -> Dict[str, int]:
 def get_free_gpus():
     # Filter to only the clusters we care about from CLUSTERS constant
     clusters = set()
-    for _, cluster_list, _, _ in CLUSTERS:
-        if not isinstance(cluster_list, list):
-            cluster_list = [cluster_list]
-        clusters.update(cluster_list)
+    for cluster in CLUSTERS:
+        clusters.update(cluster.clusters)
     clusters = sorted(list(clusters))
 
     free_gpus = {}
