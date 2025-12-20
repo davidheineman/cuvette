@@ -8,7 +8,7 @@ import threading
 import time
 from typing import Optional, Callable
 
-from cuvette.constants import CLUSTERS
+from cuvette.clusters import CLUSTERS
 from cuvette.figlet import Figlet
 from cuvette.quotes import HEADER_QUOTES
 

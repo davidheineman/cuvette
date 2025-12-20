@@ -6,7 +6,7 @@ from typing import Dict
 from rich.console import Console
 from rich.table import Table
 
-from cuvette.constants import CLUSTERS
+from cuvette.clusters import CLUSTERS
 from cuvette.warning_utils import setup_cuvette_warnings
 
 setup_cuvette_warnings()
