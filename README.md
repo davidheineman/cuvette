@@ -48,6 +48,7 @@ ai2cleanup # run ai2 cleaning utils
 ### for logs ###
 blogs # get logs for job
 bstream # stream logs for job
+bparse # pipe logs into ChatGPT to ask about errors (requires .[openai] dependency)
 
 ### for workspaces / secrets ###
 bcreate # create workspace

@@ -6,3 +6,6 @@ secrets
 .mypy_cache
 dist
 workspace
+
+# for now :)
+uv.lock

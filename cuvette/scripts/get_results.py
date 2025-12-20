@@ -2,13 +2,10 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
 
-from beaker import Beaker, Experiment
+from beaker import Beaker, BeakerExperiment
 from tqdm import tqdm
 
-from cuvette.scripts.utils import gather_experiments, get_default_user
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
+from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
 
 def download_job(job, output_dir):
     beaker = Beaker.from_env()
@@ -24,7 +21,7 @@ def download_job(job, output_dir):
     return job
 
 def get_results(author, workspace, limit, output_dir):
-    experiments: List[Experiment] = gather_experiments(
+    experiments: List[ExperimentWithJobs] = gather_experiments(
         author_list=[author], workspace_name=workspace, limit=limit
     )
     print(f"Found {len(experiments)} experiments")

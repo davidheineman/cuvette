@@ -1,59 +1,61 @@
 import argparse
 import sys
 
-from beaker import Beaker, Job
-from beaker.exceptions import JobNotFound
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
+from beaker import Beaker, BeakerJob
+from beaker.exceptions import BeakerJobNotFound
 
 
 def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = False):
     beaker = Beaker.from_env()
 
     try:
-        job: Job = beaker.job.get(job_id)
+        job: BeakerJob = beaker.job.get(job_id)
 
         if job.execution is None:
-            if job.kind == "session":
+            if job.assignment_details.HasField("environment_id"):
                 raise ValueError("Job is a session. Please provide an execution job.")
             raise RuntimeError(job)
 
         experiment_id = job.execution.experiment
-    except JobNotFound:
+    except BeakerJobNotFound:
         print(f"Job {job_id} not found, using {job_id} as an experiment ID...")
         experiment_id = job_id
 
-    # Check if there's multiple tasks
-    experiment = beaker.experiment.get(experiment_id)
-    task_ids = [job.execution.task for job in experiment.jobs]
-    if len(task_ids) > 1:
-        task_id = [
-            job.execution.task
-            for job in experiment.jobs
-            if job.execution.replica_rank == 0 or job.execution.replica_rank is None
-        ][-1]
-        print(f'Multiple tasks found! Following replica=0: "{task_id}"...')
+    workload = beaker.workload.get(experiment_id)
+    
+    # Get tasks from the experiment
+    experiment = workload.experiment
+    tasks = list(experiment.tasks)
+    
+    if len(tasks) > 1:
+        # If multiple tasks, use the first one (replica 0)
+        task = tasks[0]
+        print(f'Multiple tasks found! Using task: "{task.id}"...')
     else:
-        task_id = task_ids[0]
+        task = tasks[0] if tasks else None
+    
+    # Get the latest job for this task
+    if task is None:
+        raise ValueError(f"No tasks found for experiment {experiment_id}")
+    
+    job: BeakerJob | None = beaker.workload.get_latest_job(workload, task=task)
+    if job is None:
+        raise ValueError(f"No jobs found for experiment {experiment_id}")
 
     try:
         if do_stream:
-            for line in beaker.experiment.follow(
-                experiment=experiment_id,
-                task=task_id,
-                strict=True,
-                # since=timedelta(minutes=2)
-            ):
-                log_line = line.decode("utf-8", errors="replace").rstrip()
+            # Stream logs from the job
+            for job_log in beaker.job.logs(job, follow=True):
+                log_line = job_log.message.decode("utf-8", errors="replace").rstrip()
                 print(log_line)
                 sys.stdout.flush()
         else:
-            log_stream = beaker.experiment.logs(experiment_id, quiet=True)
+            # Get all logs from the job
+            log_stream = beaker.job.logs(job)
 
             logs = ""
-            for line in log_stream:
-                logs += line.decode("utf-8", errors="replace").rstrip()
+            for job_log in log_stream:
+                logs += job_log.message.decode("utf-8", errors="replace").rstrip()
                 logs += "\n"
 
             if return_logs:

@@ -5,9 +5,6 @@ from typing import List
 
 from rich.console import Console
 from rich.table import Table
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
 
 
 def get_node_hostnames() -> List[str]:

@@ -6,11 +6,12 @@ import subprocess
 import textwrap
 import threading
 import time
-from typing import Optional, Callable
+from typing import Optional, Callable, Union
 
 from cuvette.clusters import CLUSTERS
 from cuvette.figlet import Figlet
 from cuvette.quotes import HEADER_QUOTES
+from cuvette.subproccess_util import create_process
 
 
 class ClusterSelector:
@@ -124,7 +125,7 @@ class ClusterSelector:
     def draw_process_output(
         self,
         window,
-        launch_command: str,
+        launch_command: Union[str, Callable],
         quick_start_command: str,
         cluster_name: Optional[str | list] = None,
         host_name: Optional[str | list] = None,
@@ -193,14 +194,8 @@ class ClusterSelector:
         output_queue = queue.Queue()
         spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
         last_spin_time = time.time()
-
-        process = subprocess.Popen(
-            launch_command.split(),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True,
-            bufsize=1,
-        )
+        
+        process = create_process(launch_command)
 
         def enqueue_output(out, queue):
             for line in iter(out.readline, ""):

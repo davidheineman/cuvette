@@ -4,14 +4,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass
 from typing import List, Optional
 
-from beaker import BeakerError, Experiment, Job
+from beaker import BeakerJob
+from beaker.exceptions import BeakerError
 from deviousutils.openai import generate_gpt, openai_init
 
 from cuvette.scripts.stream_logs import stream_experiment_logs
-from cuvette.warning_utils import setup_cuvette_warnings
-from cuvette.scripts.utils import gather_experiments, get_default_user
-
-setup_cuvette_warnings()
+from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
 
 # Pre-defined failure reasons (for vLLM)
 FAILURE_REASONS = """
@@ -64,7 +62,7 @@ def get_failed_logs(experiment):
     # if 'arc_challenge-mc' not in experiment.name:
     #     return None
 
-    jobs: List[Job] = experiment.jobs
+    jobs: List[BeakerJob] = experiment.jobs
 
     def failed(job):
         return job.status.exit_code is not None and job.status.exit_code > 0
@@ -92,7 +90,7 @@ def get_failed_logs(experiment):
 def parse(author, workspace, limit, instructions):
     openai_init()
 
-    experiments: List[Experiment] = gather_experiments(
+    experiments: List[ExperimentWithJobs] = gather_experiments(
         author_list=[author], workspace_name=workspace, limit=limit
     )
     print(f"Found {len(experiments)} experiments")

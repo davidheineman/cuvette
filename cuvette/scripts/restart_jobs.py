@@ -1,13 +1,10 @@
 import time
 from typing import List
 
-from beaker import Beaker, Experiment
+from beaker import Beaker, BeakerExperiment
 from beaker.exceptions import BeakerError
 
-from cuvette.scripts.utils import gather_experiments, get_default_user
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
+from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
 
 
 def beaker_experiment_failed(exp):
@@ -28,7 +25,7 @@ def beaker_experiment_failed(exp):
 
 def restart_jobs(author, workspace, limit=5000):
     beaker = Beaker.from_env()
-    experiments: List[Experiment] = gather_experiments(
+    experiments: List[ExperimentWithJobs] = gather_experiments(
         [author],
         workspace_name=workspace,
         limit=limit,
@@ -38,7 +35,8 @@ def restart_jobs(author, workspace, limit=5000):
 
     for i, experiment in enumerate(experiments):
         try:
-            beaker.experiment.resume(experiment)
+            workload = beaker.workload.get(experiment.id)
+            beaker.workload.restart_tasks(workload)
         except BeakerError as e:
             print(f"Failed to restart https://beaker.org/ex/{experiment.id}: {e}")
             continue

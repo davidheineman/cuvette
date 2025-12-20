@@ -7,9 +7,6 @@ from rich.console import Console
 from rich.table import Table
 
 from cuvette.clusters import CLUSTERS
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
 
 
 def get_cluster_free_gpus(cluster) -> Dict[str, int]:

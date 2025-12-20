@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuvette"
-version = "0.2.11"
+version = "0.3.0"
 requires-python = ">=3.8,<3.11" # < 3.11 for widget compatibility
 dependencies = [
-    "beaker-py==1.36.2",
+    "beaker-py",
     "rich",
     "deviousutils"
 ]
@@ -43,6 +43,9 @@ bcopy = "cuvette.secrets:copy_secret"
 widget = [
     "rumps",
     "py2app",
+]
+openai = [
+    "openai"
 ]
 dev = [
     "ruff",

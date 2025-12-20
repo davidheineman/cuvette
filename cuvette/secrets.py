@@ -5,9 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from beaker import Beaker
 import beaker
-from cuvette.warning_utils import setup_cuvette_warnings
-
-setup_cuvette_warnings()
 
 SECRETS_ROOT = Path(__file__).parent.parent / "secrets"
 
@@ -115,7 +112,11 @@ def create():
     )
     args = parser.parse_args()
 
-    create_workspace(args.name)
+    workspace = create_workspace(args.workspace)
+    
+    workspace_suffix = args.workspace.split('/')[-1] # ai2/davidh -> davidh
+
+    print(f"Created: https://beaker.allen.ai/orgs/ai2/workspaces/{workspace_suffix}")
 
 
 def _sync_secret(bk, workspace_name, entry):
@@ -203,16 +204,18 @@ def list_secrets():
     )
     args = parser.parse_args()
 
-    workspace = args.workspace
+    workspace_name = args.workspace
 
     beaker = Beaker.from_env()
-    secrets = beaker.workspace.secrets(workspace)
+    # Get workspace object first
+    workspace = beaker.workspace.get(workspace_name)
+    secrets = beaker.secret.list(workspace=workspace)
 
     for secret in secrets:
         print(secret.name)
 
         if args.show_values:
-            value = beaker.secret.read(secret.name, workspace=workspace)
+            value = beaker.secret.read(secret, workspace=workspace)
             print(value)
 
 

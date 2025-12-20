@@ -1,39 +1,79 @@
 from typing import List
 
-from beaker import Beaker, Experiment, Job, JobPatch
+import grpc
 
-from cuvette.scripts.utils import gather_experiments, get_default_user
-from cuvette.warning_utils import setup_cuvette_warnings
+from beaker import Beaker, BeakerJobPriority
+from beaker import beaker_pb2 as pb2
+from beaker._service_client import RpcMethod
+from beaker.exceptions import BeakerJobNotFound
 
-setup_cuvette_warnings()
+from cuvette.scripts.utils import get_default_user
+
+
+PRIORITY_MAP = {
+    "low": BeakerJobPriority.low,
+    "normal": BeakerJobPriority.normal,
+    "high": BeakerJobPriority.high,
+    "urgent": BeakerJobPriority.urgent,
+}
+
+def gather_experiments(
+    beaker: Beaker, 
+    author_list: List[str], 
+    workspace_name: str, 
+    limit: int = 2000) -> List[pb2.Workload]:
+    """Gather all experiments from a workspace, filtered by author."""
+    workspace = beaker.workspace.get(workspace_name)
+    
+    workloads = []
+    for author in author_list:
+        # Server-side filtering by author AND workspace - much faster!
+        for workload in beaker.workload.list(
+            workspace=workspace,
+            author=author,  # Filter happens on server
+            limit=limit - len(workloads),
+        ):
+            workloads.append(workload)
+            if len(workloads) >= limit:
+                break
+        if len(workloads) >= limit:
+            break
+    
+    print(f"Total experiments for authors {author_list}: {len(workloads)}")
+    return workloads
 
 
 def change_priority(author, workspace, priority, limit=5000):
-    beaker = Beaker.from_env()
-    experiments: List[Experiment] = gather_experiments(
-        [author],
-        workspace_name=workspace,
-        limit=limit,
-    )
-    print(f"Found {len(experiments)} failed experiments")
+    with Beaker.from_env() as beaker:
+        workloads = gather_experiments(beaker, [author], workspace, limit)
+        print(f"Found {len(workloads)} experiments")
 
-    for i, experiment in enumerate(experiments):
-        for job in experiment.jobs:
-            job: Job
-            try:
-                # Make direct API call to update job priority
-                response = beaker.job.request(
-                    f"jobs/{job.id}", method="PATCH", data=JobPatch(priority=priority)
-                )
-                if response.status_code == 200:
-                    print(f"Updated job {job.id} priority to {priority}")
-                else:
-                    raise RuntimeError(f"{response.status_code} - {response.text}")
-            except Exception as e:
-                print(f"Failed to update priority for job {job.id}: {e}")
+        priority_enum = PRIORITY_MAP[priority]
 
-        print(f"({i+1}/{len(experiments)}) updated https://beaker.org/ex/{experiment.id})")
+        for i, workload in enumerate(workloads):
+            experiment_id = workload.experiment.id
+            
+            # Get jobs from tasks
+            for task in workload.experiment.tasks:
+                for job in beaker.job.list(task=task, limit=10):  # Get recent jobs per task
+                    try:
+                        request = pb2.UpdateJobSourcePriorityRequest(
+                            job_id=job.id,
+                            priority=priority_enum.as_pb2(),
+                        )
+                        beaker.job.rpc_request(
+                            RpcMethod[pb2.UpdateJobSourcePriorityResponse](
+                                beaker.job.service.UpdateJobSourcePriority
+                            ),
+                            request,
+                            exceptions_for_status={
+                                grpc.StatusCode.NOT_FOUND: BeakerJobNotFound(job.id),
+                            },
+                        )
+                    except Exception as e:
+                        print(f"Failed to update priority for job {job.id}: {e}")
 
+            print(f"({i+1}/{len(workloads)}) updated https://beaker.org/ex/{experiment_id})")
 
 def main():
     import argparse
