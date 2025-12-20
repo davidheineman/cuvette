@@ -421,10 +421,6 @@ class ClusterSelector:
         curses.start_color()
         self.setup_colors()
 
-        # Set background color based on theme
-        if not self.is_dark_mode:
-            stdscr.bkgd(" ", curses.color_pair(1))
-
         # Hide the cursor
         curses.curs_set(0)
 
