@@ -1,6 +1,6 @@
 from pathlib import Path
 
-SECRETS_ROOT = Path(__file__).parent.parent / "secrets"
+SECRETS_ROOT = Path(__file__).parent.parent.parent / "secrets"
 
 GENERAL_FILE_SECRETS = [
     {"name": "ssh-key", "type": "file", "path": ".ssh/id_rsa"},

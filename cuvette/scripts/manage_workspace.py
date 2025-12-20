@@ -157,14 +157,21 @@ def copy_secret():
     beaker = Beaker.from_env()
     
     try:
-        # Read the secret from the source workspace
-        secret_value = beaker.secret.read(args.secret, workspace=args.from_workspace)
+        # Get workspace objects
+        from_workspace = beaker.workspace.get(args.from_workspace)
+        to_workspace = beaker.workspace.get(args.to_workspace)
+        
+        # Get the secret object from the source workspace
+        secret = beaker.secret.get(args.secret, workspace=from_workspace)
+        
+        # Read the secret value
+        secret_value = beaker.secret.read(secret, workspace=from_workspace)
         
         # Determine the name for the secret in the destination workspace
         destination_name = args.new_name if args.new_name else args.secret
         
         # Write the secret to the destination workspace
-        beaker.secret.write(destination_name, secret_value, workspace=args.to_workspace)
+        beaker.secret.write(destination_name, secret_value, workspace=to_workspace)
         
         print(f"Copied '{args.secret}': '{args.from_workspace}' -> '{args.to_workspace}' ('{destination_name}')")
         
