@@ -1,6 +1,6 @@
 import argparse
 
-from cuvette.scripts.utils import run_command
+from cuvette.utils.general import run_command
 
 
 def ai2code():

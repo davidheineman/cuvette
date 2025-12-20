@@ -6,7 +6,7 @@ from beaker.beaker_pb2 import User
 from rich.console import Console
 from rich.table import Table
 
-from cuvette.scripts.utils import get_default_user
+from cuvette.utils.general import get_default_user
 
 
 def categorize_and_sort_jobs(jobs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

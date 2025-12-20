@@ -2,7 +2,7 @@ import argparse
 from pathlib import Path
 
 from cuvette.scripts.get_jobs import get_job_data
-from cuvette.scripts.utils import get_default_user, run_command
+from cuvette.utils.general import get_default_user, run_command
 
 SSH_USER = "davidh"
 

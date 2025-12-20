@@ -5,7 +5,7 @@ from typing import List
 from beaker import Beaker, BeakerExperiment
 from tqdm import tqdm
 
-from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
+from cuvette.utils.general import gather_experiments, get_default_user, ExperimentWithJobs
 
 def download_job(job, output_dir):
     beaker = Beaker.from_env()

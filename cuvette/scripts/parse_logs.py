@@ -9,7 +9,7 @@ from beaker.exceptions import BeakerError
 from deviousutils.openai import generate_gpt, openai_init
 
 from cuvette.scripts.stream_logs import stream_experiment_logs
-from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
+from cuvette.utils.general import gather_experiments, get_default_user, ExperimentWithJobs
 
 # Pre-defined failure reasons (for vLLM)
 FAILURE_REASONS = """

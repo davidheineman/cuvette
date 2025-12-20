@@ -4,7 +4,7 @@ from typing import List
 from beaker import Beaker, BeakerExperiment
 from beaker.exceptions import BeakerError
 
-from cuvette.scripts.utils import gather_experiments, get_default_user, ExperimentWithJobs
+from cuvette.utils.general import gather_experiments, get_default_user, ExperimentWithJobs
 
 
 def beaker_experiment_failed(exp):

@@ -6,7 +6,7 @@ from typing import Dict
 from rich.console import Console
 from rich.table import Table
 
-from cuvette.clusters import CLUSTERS
+from cuvette.constants.clusters import CLUSTERS
 
 
 def get_cluster_free_gpus(cluster) -> Dict[str, int]:

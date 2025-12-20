@@ -9,7 +9,7 @@ from cuvette.session import ExperimentLauncher, Launcher, SessionLauncher
 
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-USE_SESSSIONS = False
+USE_SESSSIONS = True
 
 
 def create_launcher(

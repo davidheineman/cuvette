@@ -8,10 +8,10 @@ import threading
 import time
 from typing import Optional, Callable, Union
 
-from cuvette.clusters import CLUSTERS
+from cuvette.constants.clusters import CLUSTERS
 from cuvette.figlet import Figlet
-from cuvette.quotes import HEADER_QUOTES
-from cuvette.subproccess_util import create_process
+from cuvette.constants.quotes import HEADER_QUOTES
+from cuvette.utils.subproccesses import create_process
 
 
 class ClusterSelector:

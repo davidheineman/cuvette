@@ -7,7 +7,7 @@ from beaker import beaker_pb2 as pb2
 from beaker._service_client import RpcMethod
 from beaker.exceptions import BeakerJobNotFound
 
-from cuvette.scripts.utils import get_default_user
+from cuvette.utils.general import get_default_user
 
 
 PRIORITY_MAP = {

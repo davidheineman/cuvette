@@ -21,9 +21,9 @@ from beaker import (
 )
 from beaker.types import BeakerExperimentSpec, BeakerTaskResources, BeakerWorkloadStatus
 
-from cuvette.scripts.utils import send_notification
-from cuvette.secrets import USER_ENV_SECRETS, USER_FILE_SECRETS
-from cuvette.quotes import HEADER_QUOTES
+from cuvette.utils.general import send_notification
+from cuvette.constants.secrets import USER_ENV_SECRETS, USER_FILE_SECRETS
+from cuvette.constants.quotes import HEADER_QUOTES
 
 # SESSION_NAME = "👋davidh👋"
 
