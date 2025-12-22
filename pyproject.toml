@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cuvette"
-version = "0.3.1"
+version = "0.3.2"
 requires-python = ">=3.8,<3.11" # < 3.11 for widget compatibility
 dependencies = [
-    "beaker-py",
+    "beaker-py>=2.0.1",
     "rich",
     "deviousutils"
 ]
@@ -55,7 +55,7 @@ dev = [
     "build",
     "twine>=1.11.0",
 ]
-all = ["cuvette[dev]"]
+all = ["cuvette[dev,widget,openai]"]
 
 [tool.setuptools]
 include-package-data = true

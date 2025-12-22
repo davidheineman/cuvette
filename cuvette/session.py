@@ -245,7 +245,6 @@ class SessionLauncher(Launcher):
 
 
 class ExperimentLauncher(Launcher):
-
     def __init__(
         self,
         cluster_name: Optional[str | list] = None,
@@ -326,7 +325,13 @@ class ExperimentLauncher(Launcher):
             case _:
                 raise ValueError(f"Unknown priority value: {priority!r}")
 
-        command = ["bash", "-lc", "source /root/.bashrc && exec /usr/sbin/sshd -D"]
+        # Add CUVETTE_PORT
+        env_vars.append(
+            BeakerEnvVar(
+                name="CUVETTE_PORT",
+                value=str(random.randint(10000, 60000)),
+            )
+        )
 
         task = BeakerTaskSpec(
             name=session_name,
@@ -375,11 +380,11 @@ class ExperimentLauncher(Launcher):
         )
 
         with Beaker.from_env() as beaker:
-            yield f"Staring job: {beaker.workload.url(self._workload)}"
+            yield f"Staring job: \033[33m{beaker.workload.url(self._workload)}\033[00m"
 
             job = None
             while job is None:
-                yield "Waiting for job to be scheduled..."
+                yield "Waiting for scheduler..."
                 job = beaker.workload.get_latest_job(self._workload)
                 if job is None:
                     time.sleep(0.5)
@@ -395,12 +400,12 @@ class ExperimentLauncher(Launcher):
 
                 if current_status != last_status:
                     status_name = BeakerWorkloadStatus(current_status).name
-                    yield f"Status: {status_name}"
+                    yield f"Status: \033[33m{status_name}\033[00m"
                     last_status = current_status
 
                 if current_status == BeakerWorkloadStatus.running:
                     self._job = job
-                    yield "Job started!"
+                    yield "Started!"
                     break
 
                 if current_status in (
@@ -417,8 +422,8 @@ class ExperimentLauncher(Launcher):
     def on_complete(
         self, returncode: int, output_lines: list[str], session_id: str
     ) -> tuple[Optional[str], bool]:
-        """Handle experiment completion - job is already running at this point."""
         if self._job is None:
             return None, False
         hostname = getattr(self._job, "hostname", None)
-        return hostname, True
+        success = self.update_port(session_id)
+        return hostname, success

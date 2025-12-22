@@ -1,15 +1,12 @@
 import argparse
 from pathlib import Path
 
-from cuvette.scripts.get_jobs import get_job_data
+from grpc import server
+
+from cuvette.scripts.get_jobs import ProcessedJob, get_job_data
 from cuvette.utils.general import get_default_user, run_command
 
 SSH_USER = "davidh"
-
-# Host ai2-root
-#     User davidh
-#     Hostname phobos-cs-aus-452.reviz.ai2.in
-#     IdentityFile ~/.ssh/id_rsa
 
 CONFIG = """
 Host {name}
@@ -25,12 +22,14 @@ Host {name}
     ServerAliveCountMax 6
     TCPKeepAlive yes
     # Compression yes
+    {proxy_command}
 """
 
 
 def get_host(session_id=None):
     user = get_default_user()
-    session_data = get_job_data(user, sessions_only=True)
+
+    session_data: list[ProcessedJob] = get_job_data(user, sessions_only=False)
 
     # Find the most recent session (sessions are already sorted by date)
     if not session_data:
@@ -40,12 +39,12 @@ def get_host(session_id=None):
     if session_id is not None:
         # Find the session with matching id
         for _session in session_data:
-            if _session['id'] == session_id:
+            if _session.id == session_id:
                 session = _session
                 break
     else:
         # Get most recent session, prioritizing GPU sessions
-        gpu_sessions = [s for s in session_data if s.get('gpus') and int(s['gpus']) > 0]
+        gpu_sessions = [s for s in session_data if s.gpus and int(s.gpus) > 0]
         if gpu_sessions:
             session = gpu_sessions[-1]  # Most recent GPU session
         else:
@@ -54,7 +53,7 @@ def get_host(session_id=None):
     if session is None:
         raise RuntimeError(f"No session found with id: {session_id}")
     
-    host_name = session['hostname']
+    host_name = session.hostname
     
     if not host_name:
         raise RuntimeError("No hostname found for the most recent session")
@@ -62,30 +61,39 @@ def get_host(session_id=None):
     # Get all port mappings and display them
     print(f"Mapping ports for host: \033[35m{host_name}\033[0m")
 
-    port_mappings = session['port_mappings']
+    if session.kind == 'execution':
+        if session.cuvette_port is None:
+            raise RuntimeError('Experiment-based session must have CUVETTE_PORT set to connect!')
+        server_port = session.cuvette_port
 
-    if not port_mappings:
-        port_mappings = []
-        raise ValueError("No port mappings found")
-    
-    # Convert port mappings from dict to list of tuples (remote_port, local_port)
-    port_mappings = [(int(remote_port), int(local_port)) for local_port, remote_port in port_mappings.items()]
-    
-    for remote_port, local_port in port_mappings:
-        print(f"{host_name}:{remote_port} (remote) -> localhost:{local_port} (local)")
+        print(f"{host_name}:{server_port} (remote) -> localhost:{server_port} (local)")
+    elif session.kind == 'session':
+        port_mappings = session.port_mappings
 
-    # Find server port
-    server_port = None
-    for remote_port, local_port in port_mappings:
-        if local_port == 8080:
-            server_port = remote_port
+        if not port_mappings:
+            port_mappings = []
+            raise ValueError("No port mappings found")
+        
+        # Convert port mappings from dict to list of tuples (remote_port, local_port)
+        port_mappings = [(int(remote_port), int(local_port)) for local_port, remote_port in port_mappings.items()]
+        
+        for remote_port, local_port in port_mappings:
+            print(f"{host_name}:{remote_port} (remote) -> localhost:{local_port} (local)")
 
-    if not server_port:
-        raise RuntimeError("No mapping found for remote port 8080 on host ai2. See ~/.ssh/config.")
+        # Find server port
+        server_port = None
+        for remote_port, local_port in port_mappings:
+            if local_port == 8080:
+                server_port = remote_port
+
+        if not server_port:
+            raise RuntimeError("No mapping found for remote port 8080 on host ai2. See ~/.ssh/config.")
+    else:
+        raise ValueError(session.kind)
 
     return host_name, server_port
 
-def update_ssh_config(host_name: str, server_port):
+def update_ssh_config(host_name: str, server_port, session_type="session"):
     # SSH config file path
     config_file = Path.home() / ".ssh" / "config"
     config_file.parent.mkdir(exist_ok=True)
@@ -115,12 +123,40 @@ def update_ssh_config(host_name: str, server_port):
     # Remove ".reviz.ai2.in" from hostname
     host_name = host_name.replace(".reviz.ai2.in", "")
 
+    # Passthrough command for experiment-based sessions
+    proxy_command = ""
+    if session_type == "experiment":
+        proxy_command = f'"ProxyCommand ssh -t ai2-root "ssh -t -i /tmp/id_rsa_davidh -p {server_port} root@localhost"'
+        server_port = 22 # <- We will instead connect through the root node
+
     # Add ai2 hosts
-    config_content += CONFIG.format(name="ai2", username="root", hostname=host_name, port=server_port)
-    config_content += CONFIG.format(name="ai2-root", username=SSH_USER, hostname=host_name, port=22)
+    config_content += CONFIG.format(
+        name="ai2", 
+        username="root", 
+        hostname=host_name, 
+        port=server_port, 
+        proxy_command=proxy_command
+    )
+    config_content += CONFIG.format(
+        name="ai2-root", 
+        username=SSH_USER, 
+        hostname=host_name, 
+        port=22, 
+        proxy_command=""
+    )
 
     # Write updated config
     config_file.write_text(config_content)
+
+    # Copy SSH key to host root:
+    if session_type == "experiment":
+        # scp -q ~/.ssh/id_rsa ai2-root:/tmp/id_rsa_davidh
+        import subprocess
+        SSH_KEY_PATH = str(Path.home() / ".ssh" / "id_rsa")
+        subprocess.run(
+            ["scp", "-q", SSH_KEY_PATH, "ai2-root:/tmp/id_rsa_davidh"],
+            check=True
+        )
 
     print(
         f"Updated SSH port to \033[35m{host_name}\033[0m:\033[31m{server_port}\033[0m in ~/.ssh/config for ai2 host."

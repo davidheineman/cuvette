@@ -9,7 +9,8 @@ from cuvette.session import ExperimentLauncher, Launcher, SessionLauncher
 
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-USE_SESSSIONS = True
+# Use experiments instead of sessions (for various niceties)
+USE_SESSSIONS = False
 
 
 def create_launcher(
@@ -69,7 +70,7 @@ def main():
                         host_name, 
                         num_gpus
                     )
-                    selector.draw_process_output(
+                    return selector.draw_process_output(
                         stdscr_window,
                         launcher.launch_command,
                         launcher.quick_start_command,

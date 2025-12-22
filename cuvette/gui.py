@@ -475,13 +475,15 @@ class ClusterSelector:
             elif key in [ord(str(i)) for i in range(1, 9)]:  # Handle keys 1-8
                 num_gpus = int(chr(key))
                 cluster = self.clusters[self.current_selection]
-                on_cluster_selected(stdscr, cluster.clusters, None, num_gpus)
+                if on_cluster_selected(stdscr, cluster.clusters, None, num_gpus):
+                    break  # Exit GUI after session is launched
             # Add enter key handling with defaults
             elif key in [ord("\n"), ord(" ")]:
                 cluster = self.clusters[self.current_selection]
                 # Default to 1 GPU for GPU clusters, 0 for CPU clusters
                 num_gpus = 1 if cluster.has_gpus else 0
-                on_cluster_selected(stdscr, cluster.clusters, None, num_gpus)
+                if on_cluster_selected(stdscr, cluster.clusters, None, num_gpus):
+                    break  # Exit GUI after session is launched
 
     def parse_ansi_color(self, text):
         # ANSI color code mapping to curses colors
