@@ -127,11 +127,11 @@ class ClusterSelector:
         window,
         launch_command: Union[str, Callable],
         quick_start_command: str,
+        on_complete: Callable,
         cluster_name: Optional[str | list] = None,
         host_name: Optional[str | list] = None,
         num_gpus: int = 0,
         on_output_line: Optional[Callable[[str], None]] = None,
-        on_complete: Optional[Callable[[int, list, str], tuple[Optional[str], bool]]] = None,
     ):
         max_y, max_x = window.getmaxyx()
 
@@ -297,115 +297,117 @@ class ClusterSelector:
                 break
 
         # Call completion callback if provided
-        host_name = None
-        if on_complete and session_id:
-            host_name, port_success = on_complete(process.returncode, lines, session_id)
-            if port_success:
-                # Handle port update display
-                update_port_command = f"bport {session_id}"
-                port_output_queue = queue.Queue()
-                port_process = subprocess.Popen(
-                    update_port_command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    universal_newlines=True,
-                    bufsize=1,
-                    shell=True,
-                    executable="/bin/zsh",
-                )
+        host_name, port_success = on_complete(
+            process.returncode, 
+            lines, 
+            session_id
+        )
+        if port_success:
+            # Handle port update display
+            update_port_command = f"bport {session_id}"
+            port_output_queue = queue.Queue()
+            port_process = subprocess.Popen(
+                update_port_command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                bufsize=1,
+                shell=True,
+                executable="/bin/zsh",
+            )
 
-                threading.Thread(
-                    target=enqueue_output,
-                    args=(port_process.stdout, port_output_queue),
-                    daemon=True,
-                ).start()
-                threading.Thread(
-                    target=enqueue_output,
-                    args=(port_process.stderr, port_output_queue),
-                    daemon=True,
-                ).start()
+            threading.Thread(
+                target=enqueue_output,
+                args=(port_process.stdout, port_output_queue),
+                daemon=True,
+            ).start()
+            threading.Thread(
+                target=enqueue_output,
+                args=(port_process.stderr, port_output_queue),
+                daemon=True,
+            ).start()
 
-                port_lines = lines
-                max_port_lines = box_height - 4
-                spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
-                last_spin_time = time.time()
+            port_lines = lines
+            max_port_lines = box_height - 4
+            spinner = itertools.cycle(["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"])
+            last_spin_time = time.time()
 
-                window.nodelay(1)
+            window.nodelay(1)
 
-                while port_process.poll() is None or not port_output_queue.empty():
-                    try:
-                        line = port_output_queue.get_nowait()
-                        port_lines.append(line.strip())
-                        if len(port_lines) > max_port_lines:
-                            port_lines.pop(0)
+            while port_process.poll() is None or not port_output_queue.empty():
+                try:
+                    line = port_output_queue.get_nowait()
+                    port_lines.append(line.strip())
+                    if len(port_lines) > max_port_lines:
+                        port_lines.pop(0)
 
-                        # Display all visible lines
-                        for idx, display_line in enumerate(port_lines[-max_port_lines:]):
-                            try:
-                                window.addstr(
-                                    header_height + 3 + idx,
-                                    4,
-                                    " " * (box_width - 6),
-                                    curses.color_pair(1),
-                                )
-                                self.add_colored_str(
-                                    window,
-                                    header_height + 3 + idx,
-                                    4,
-                                    display_line[: box_width - 6],
-                                    curses.color_pair(1),
-                                )
-                            except curses.error:
-                                pass
+                    # Display all visible lines
+                    for idx, display_line in enumerate(port_lines[-max_port_lines:]):
+                        try:
+                            window.addstr(
+                                header_height + 3 + idx,
+                                4,
+                                " " * (box_width - 6),
+                                curses.color_pair(1),
+                            )
+                            self.add_colored_str(
+                                window,
+                                header_height + 3 + idx,
+                                4,
+                                display_line[: box_width - 6],
+                                curses.color_pair(1),
+                            )
+                        except curses.error:
+                            pass
 
-                        current_time = time.time()
-                        if current_time - last_spin_time > 0.1:
-                            try:
-                                if port_process.poll() is None:
-                                    window.addstr(
-                                        max_y - 3,
-                                        4,
-                                        f"{next(spinner)} Updating ports...",
-                                        curses.color_pair(2),
-                                    )
-                                last_spin_time = current_time
-                            except curses.error:
-                                pass
-
-                        window.refresh()
-                    except queue.Empty:
-                        current_time = time.time()
-                        if current_time - last_spin_time > 0.1:
-                            try:
+                    current_time = time.time()
+                    if current_time - last_spin_time > 0.1:
+                        try:
+                            if port_process.poll() is None:
                                 window.addstr(
                                     max_y - 3,
                                     4,
                                     f"{next(spinner)} Updating ports...",
                                     curses.color_pair(2),
                                 )
-                                last_spin_time = current_time
-                            except curses.error:
-                                pass
-                            window.refresh()
-                        time.sleep(0.01)
+                            last_spin_time = current_time
+                        except curses.error:
+                            pass
 
-                    try:
-                        if window.getch() == ord("q"):
-                            port_process.terminate()
-                            return None
-                    except curses.error:
-                        pass
+                    window.refresh()
+                except queue.Empty:
+                    current_time = time.time()
+                    if current_time - last_spin_time > 0.1:
+                        try:
+                            window.addstr(
+                                max_y - 3,
+                                4,
+                                f"{next(spinner)} Updating ports...",
+                                curses.color_pair(2),
+                            )
+                            last_spin_time = current_time
+                        except curses.error:
+                            pass
+                        window.refresh()
+                    time.sleep(0.01)
 
-                window.nodelay(0)
+                try:
+                    if window.getch() == ord("q"):
+                        port_process.terminate()
+                        return None
+                except curses.error:
+                    pass
 
-                if port_process.returncode == 0:
-                    window.addstr(
-                        max_y - 3, 4, f"✓ Session launched on {host_name}", curses.color_pair(2)
-                    )
-                else:
-                    window.addstr(
-                        max_y - 3, 4, f"! Port update failed ({session_id})", curses.color_pair(1)
-                    )
+            window.nodelay(0)
+
+            if port_process.returncode == 0:
+                window.addstr(
+                    max_y - 3, 4, f"✓ Session launched on {host_name}", curses.color_pair(2)
+                )
+            else:
+                window.addstr(
+                    max_y - 3, 4, f"! Port update failed ({session_id})", curses.color_pair(1)
+                )
 
         # Store all output lines for later display
         self.final_output_lines = lines
@@ -440,11 +442,11 @@ class ClusterSelector:
             stdscr,
             launch_command,
             quick_start_command,
+            on_complete,
             cluster_name,
             host_name,
             num_gpus,
             on_output_line,
-            on_complete,
         )
 
     def run(self, stdscr, on_cluster_selected: Callable):

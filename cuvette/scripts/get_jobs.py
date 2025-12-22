@@ -176,10 +176,9 @@ def get_job_data(username: str, sessions_only: bool = True) -> list[ProcessedJob
 
     # Filter sessions by name or kind
     if sessions_only:
-        # TODO: Get both sessions + experiments with "cuvette" in the description
         processed_jobs = [
             job for job in processed_jobs if \
-                job.name and 'eval' in job.name or 
+                job.name and 'cuvette' in job.name or 
                 job.kind == 'session'
         ]
 

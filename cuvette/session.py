@@ -18,16 +18,17 @@ from beaker import (
     BeakerConstraints,
     BeakerTaskContext,
     BeakerJobPriority,
+    BeakerExperimentSpec, 
+    BeakerTaskResources, 
+    BeakerWorkloadStatus
 )
-from beaker.types import BeakerExperimentSpec, BeakerTaskResources, BeakerWorkloadStatus
 
 from cuvette.utils.general import send_notification
 from cuvette.constants.secrets import USER_ENV_SECRETS, USER_FILE_SECRETS
-from cuvette.constants.quotes import HEADER_QUOTES
 
 # SESSION_NAME = "👋davidh👋"
 
-SESSION_NAME = "eval-debugging"
+SESSION_NAME = "eval-debugging" + "-cuvette" # (must have cuvette)
 SESSION_WORKSPACE = "ai2/olmo-3-evals"
 SESSION_PRIORITY = "high"
 SESSION_BUDGET = "ai2/oe-base"
@@ -83,7 +84,9 @@ class Launcher(abc.ABC):
         )
 
         if port_process.returncode == 0:
-            updated_notif = f"Session launched with {self.num_gpus} GPUs on {self.host_name}"
+            updated_notif = f"Session launched with {self.num_gpus} GPUs"
+            if self.host_name is not None:
+                updated_notif += f" on {self.host_name}"
             send_notification("Beaker Launch", updated_notif)
             success = True
         else:
@@ -380,7 +383,9 @@ class ExperimentLauncher(Launcher):
         )
 
         with Beaker.from_env() as beaker:
-            yield f"Staring job: \033[33m{beaker.workload.url(self._workload)}\033[00m"
+            job = beaker.workload.get_latest_job(self._workload)
+            yield f"Starting session {job.id}" # needed for bport
+            yield f"Starting job: \033[33m{beaker.workload.url(self._workload)}\033[00m"
 
             job = None
             while job is None:
@@ -424,6 +429,16 @@ class ExperimentLauncher(Launcher):
     ) -> tuple[Optional[str], bool]:
         if self._job is None:
             return None, False
-        hostname = getattr(self._job, "hostname", None)
-        success = self.update_port(session_id)
+
+        # Wait before connecting (or else the locking mechanism fails)
+        time.sleep(2)
+
+        success = self.update_port(self._job.id)
+
+        # Get hostname from job
+        # hostname = self._job.assignment_details.node_hostname if hasattr(self._job, "assignment_details") and hasattr(self._job.assignment_details, "node_hostname") else None
+
+        # TODO: get actual hostname
+        hostname = "execution mode"
+
         return hostname, success

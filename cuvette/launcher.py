@@ -74,11 +74,11 @@ def main():
                         stdscr_window,
                         launcher.launch_command,
                         launcher.quick_start_command,
+                        launcher.on_complete,
                         cluster_name,
                         host_name,
                         num_gpus,
                         on_output_line=None,
-                        on_complete=launcher.on_complete,
                     )
 
                 selector.run(stdscr, on_cluster_selected_internal)
