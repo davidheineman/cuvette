@@ -40,6 +40,10 @@ class JobClient:
     def __init__(self, beaker: PoorMansBeaker):
         self.beaker = beaker
 
+    def get(self, job_id: str) -> Dict:
+        """Get detailed info for a single job."""
+        return self.beaker._get(f"jobs/{job_id}")
+
     def list(
         self,
         author: Optional[str] = None,

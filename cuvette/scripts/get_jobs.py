@@ -71,6 +71,12 @@ def list_workloads(
     return workloads
 
 
+def get_workload_details(job_id: str) -> dict:
+    """Fetch detailed info for a single job (includes env_vars, port_mappings, etc.)"""
+    pmb = PoorMansBeaker.from_env()
+    return JobClient(beaker=pmb).get(job_id)
+
+
 def parse_job_dict(job: dict) -> ProcessedJob:
     hostname = ""
     gpu_count = "0"
@@ -78,8 +84,8 @@ def parse_job_dict(job: dict) -> ProcessedJob:
 
     # Find Env Vars
     env_vars = None
-    if "session" in job and job["session"] and "env_vars" in job["session"]:
-        env_vars = job["session"].get("env_vars", [])
+    if "session" in job and job["session"]:
+        env_vars = job["session"].get("envVars") or job["session"].get("env_vars", [])
     elif "execution" in job and job["execution"]:
         # Compatible with classic job dict structure (fallback)
         spec = job["execution"].get("spec", {})
@@ -105,8 +111,9 @@ def parse_job_dict(job: dict) -> ProcessedJob:
 
     # Workload ID
     workload = None
-    if "session" in job and job["session"] and "env_vars" in job["session"]:
-        for env in job["session"].get("env_vars", []):
+    if "session" in job and job["session"]:
+        session_env_vars = job["session"].get("envVars") or job["session"].get("env_vars", [])
+        for env in session_env_vars:
             env_name = env.get("name") if isinstance(env, dict) else getattr(env, "name", None)
             env_value = env.get("value") if isinstance(env, dict) else getattr(env, "value", None)
             if env_name == "BEAKER_WORKLOAD_ID":
@@ -128,8 +135,8 @@ def parse_job_dict(job: dict) -> ProcessedJob:
     if "status" in job and job["status"]:
         start_date = job["status"].get("started", None)
 
-    # Port mappings
-    port_mappings = job.get("port_mappings", None)
+    # Port mappings (API returns camelCase "portMappings")
+    port_mappings = job.get("portMappings") or job.get("port_mappings", None)
 
     # Is canceling
     is_canceling = False

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from grpc import server
 
-from cuvette.scripts.get_jobs import ProcessedJob, get_job_data
+from cuvette.scripts.get_jobs import ProcessedJob, get_job_data, get_workload_details, parse_job_dict
 from cuvette.utils.general import get_default_user, run_command
 
 SSH_USER = "davidh"
@@ -52,6 +52,10 @@ def get_host(session_id=None):
         
     if session is None:
         raise RuntimeError(f"No session found with id: {session_id}")
+    
+    # Fetch job details
+    detailed_job = get_workload_details(session.id)
+    session = parse_job_dict(detailed_job)
     
     host_name = session.hostname
     
