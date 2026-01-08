@@ -9,16 +9,14 @@ from cuvette.session import ExperimentLauncher, Launcher, SessionLauncher
 
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Use experiments instead of sessions (for various niceties)
-USE_SESSSIONS = False
-
 
 def create_launcher(
     cluster_name: Optional[str | list] = None,
     host_name: Optional[str | list] = None,
     num_gpus: int = 0,
+    use_session: bool = False,
 ) -> Launcher:
-    if USE_SESSSIONS:
+    if use_session:
         return SessionLauncher(cluster_name, host_name, num_gpus)
     return ExperimentLauncher(cluster_name, host_name, num_gpus)
 
@@ -36,6 +34,8 @@ def main():
         parser.add_argument("-c", "--clusters", nargs="+", help="Cluster names")
         parser.add_argument("-H", "--hosts", nargs="+", help="Host names")
         parser.add_argument("-g", "--gpus", type=int, help="Number of GPUs")
+        parser.add_argument("-s", "--use-session", action="store_true", default=False,
+                            help="Use sessions instead of experiments")
         args = parser.parse_args()
 
         selector = ClusterSelector(max_width=100)
@@ -46,7 +46,8 @@ def main():
             launcher = create_launcher(
                 args.clusters, 
                 args.hosts, 
-                num_gpus
+                num_gpus,
+                args.use_session,
             )
 
             success = curses.wrapper(
@@ -68,7 +69,8 @@ def main():
                     launcher = create_launcher(
                         cluster_name, 
                         host_name, 
-                        num_gpus
+                        num_gpus,
+                        args.use_session,
                     )
                     return selector.draw_process_output(
                         stdscr_window,
