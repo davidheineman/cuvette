@@ -52,6 +52,7 @@ class Launcher(abc.ABC):
         self.cluster_name = cluster_name
         self.host_name = host_name
         self.num_gpus = num_gpus
+        self.shared_memory = "32GiB"
 
     def build_quick_start_command(
         self,
@@ -124,6 +125,7 @@ class SessionLauncher(Launcher):
     beaker session create \
         --name {name} \
         {gpu_command} \
+        {shared_memory_command} \
         {cluster_command} \
         {hostname_command} \
         --image beaker://{image} \
@@ -147,6 +149,7 @@ class SessionLauncher(Launcher):
         cluster_name: Optional[str | list] = None,
         host_name: Optional[str | list] = None,
         num_gpus: int = 0,
+        shared_memory: Optional[str] = None,
         session_name: str = SESSION_NAME,
         workspace: str = SESSION_WORKSPACE,
         priority: str = SESSION_PRIORITY,
@@ -157,6 +160,10 @@ class SessionLauncher(Launcher):
         gpu_command = ""
         if num_gpus > 0:
             gpu_command = f"--gpus {num_gpus}"
+
+        shared_memory_command = ""
+        if shared_memory is not None:
+            shared_memory_command = f"--shared-memory {shared_memory}"
 
         cluster_command = ""
         if cluster_name is not None:
@@ -197,6 +204,7 @@ class SessionLauncher(Launcher):
             workspace=workspace,
             priority=priority,
             gpu_command=gpu_command,
+            shared_memory_command=shared_memory_command,
             cluster_command=cluster_command,
             hostname_command=hostname_command,
             user_file_secrets=user_file_secrets_str,
@@ -214,6 +222,7 @@ class SessionLauncher(Launcher):
             cluster_name=self.cluster_name,
             host_name=self.host_name,
             num_gpus=self.num_gpus,
+            shared_memory=self.shared_memory,
         )
 
     def get_host_name(self, session_id):
@@ -253,6 +262,7 @@ class ExperimentLauncher(Launcher):
         cluster_name: Optional[str | list] = None,
         host_name: Optional[str | list] = None,
         num_gpus: int = 0,
+        shared_memory: Optional[str] = None,
     ):
         super().__init__(cluster_name, host_name, num_gpus)
         self._workload = None
@@ -261,6 +271,7 @@ class ExperimentLauncher(Launcher):
     def create_task_spec(
         self,
         num_gpus: int = 0,
+        shared_memory: Optional[str] = None,
         workspace: str = SESSION_WORKSPACE,
         priority: str = SESSION_PRIORITY,
         session_name: str = SESSION_NAME,
@@ -349,7 +360,7 @@ class ExperimentLauncher(Launcher):
                 priority=priority_val,
                 preemptible=False,
             ),
-            resources=BeakerTaskResources(gpu_count=num_gpus)
+            resources=BeakerTaskResources(gpu_count=num_gpus, shared_memory=shared_memory)
         )
 
         experiment = BeakerExperimentSpec(
@@ -380,6 +391,7 @@ class ExperimentLauncher(Launcher):
             cluster_name=self.cluster_name,
             host_name=self.host_name,
             num_gpus=self.num_gpus or 0,
+            shared_memory=self.shared_memory,
         )
 
         with Beaker.from_env() as beaker:
