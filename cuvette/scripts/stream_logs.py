@@ -5,6 +5,29 @@ from beaker import Beaker, BeakerJob
 from beaker.exceptions import BeakerJobNotFound
 
 
+def parse_job_id(job_id: str) -> str:
+    """
+    Extract the experiment/job/work id from various Beaker URLs or ID strings.
+
+    Handles cases like:
+        https://beaker.org/ex/01KEJPBA6A85PG4C0V24JKS77N
+        https://beaker.org/ex/01KEJPBA6A85PG4C0V24JKS77N?foo=bar
+        https://beaker.allen.ai/orgs/ai2/workspaces/olmo-3-evals/work/01KEJQA5Z92VPR58JMDCCJ5PN0?taskId=...&jobId=...
+
+    Returns just the ID (e.g., "01KEJQA5Z92VPR58JMDCCJ5PN0").
+    """
+    # Remove query string if present
+    job_id = job_id.split('?', 1)[0]
+
+    # Handle /ex/ or /work/ (and possibly others) in the path
+    import re
+    # Compile a regex to match Beaker IDs (they always start with "01" and are 26 chars)
+    m = re.search(r'(01[A-Z0-9]{24,})', job_id)
+    if m:
+        return m.group(1)
+    return job_id
+
+
 def stream_experiment_logs(job_id: str, do_stream: bool, return_logs: bool = False):
     beaker = Beaker.from_env()
 
@@ -83,7 +106,8 @@ def main():
 
     args = parser.parse_args()
 
-    stream_experiment_logs(args.job_id, do_stream=args.stream)
+    job_id = parse_job_id(args.job_id)
+    stream_experiment_logs(job_id, do_stream=args.stream)
 
 
 def logs():
@@ -92,7 +116,8 @@ def logs():
 
     args = parser.parse_args()
 
-    stream_experiment_logs(args.job_id, do_stream=False)
+    job_id = parse_job_id(args.job_id)
+    stream_experiment_logs(job_id, do_stream=False)
 
 
 def stream():
@@ -101,4 +126,5 @@ def stream():
 
     args = parser.parse_args()
 
-    stream_experiment_logs(args.job_id, do_stream=True)
+    job_id = parse_job_id(args.job_id)
+    stream_experiment_logs(job_id, do_stream=True)
