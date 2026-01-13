@@ -150,3 +150,12 @@ pm2 startup
     "ai2": "50000-50100"
 }
 ```
+
+2. You can chain together cuvette commands! E.g.
+
+```sh
+# Copy all keys between workspaces (except those containing `COOKBOOK_AUTH`)
+blist -w ai2/olmo-3-evals \
+| grep -v COOKBOOK_AUTH \
+| xargs -n1 -I{} bcopy -f ai2/olmo-3-evals -t ai2/adaptability -s {} -n {}
+```

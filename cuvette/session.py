@@ -29,7 +29,7 @@ from cuvette.constants.secrets import USER_ENV_SECRETS, USER_FILE_SECRETS
 # SESSION_NAME = "👋davidh👋"
 
 SESSION_NAME = "eval-debugging" + "-cuvette" # (must have cuvette)
-SESSION_WORKSPACE = "ai2/olmo-3-evals"
+SESSION_WORKSPACE = "ai2/olmo-3-evals" # ai2/adaptability
 SESSION_PRIORITY = "high"
 SESSION_BUDGET = "ai2/oe-base"
 

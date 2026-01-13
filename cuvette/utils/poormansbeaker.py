@@ -8,7 +8,7 @@ import yaml
 
 class PoorMansBeaker:
     """
-    An HTTPS client for Beaker for when GRPC is too slow
+    An HTTPS client for Beaker for when RPC is too slow
     """
     def __init__(self, token: str, base_url: str = "https://beaker.org"):
         self.token = token
