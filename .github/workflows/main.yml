@@ -84,7 +84,7 @@ jobs:
       - name: Setup Python env
         uses: ./.github/actions/setup-venv
         with:
-          python-version: '3.9'
+          python-version: '3.10'
           cache-prefix: ${{ env.CACHE_PREFIX }}
 
       - name: Prepare environment
