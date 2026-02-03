@@ -43,8 +43,15 @@ def get_host(session_id=None):
                 session = _session
                 break
     else:
+        # Filter out sessions where session.kind == 'execution' but session.cuvette_port is None
+        session_data = [
+            s for s in session_data 
+            if not (s.kind == 'execution' and s.cuvette_port is None)
+        ]
+
         # Get most recent session, prioritizing GPU sessions
         gpu_sessions = [s for s in session_data if s.gpus and int(s.gpus) > 0]
+
         if gpu_sessions:
             session = gpu_sessions[-1]  # Most recent GPU session
         else:
