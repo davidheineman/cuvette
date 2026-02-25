@@ -176,4 +176,4 @@ def copy_secret():
         print(f"Copied '{args.secret}': '{args.from_workspace}' -> '{args.to_workspace}' ('{destination_name}')")
         
     except Exception as e:
-        print(f"Error copying secret: {e}")
+        print(f"Error copying secret '{args.secret}': {type(e).__name__}: {e}")
