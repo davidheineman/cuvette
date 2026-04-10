@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
@@ -119,21 +120,33 @@ def list_secrets():
     parser.add_argument(
         "--show_values", "-v", action="store_true", help="Show all values."
     )
+    parser.add_argument(
+        "--json", "-j", action="store_true", help="Output as JSON (implies -v)."
+    )
     args = parser.parse_args()
 
     workspace_name = args.workspace
 
     beaker = Beaker.from_env()
-    # Get workspace object first
     workspace = beaker.workspace.get(workspace_name)
     secrets = beaker.secret.list(workspace=workspace)
 
-    for secret in secrets:
-        print(secret.name)
+    if args.json or args.show_values:
+        def _read(secret):
+            return secret.name, beaker.secret.read(secret, workspace=workspace)
 
-        if args.show_values:
-            value = beaker.secret.read(secret, workspace=workspace)
-            print(value)
+        with ThreadPoolExecutor(max_workers=32) as executor:
+            result = dict(executor.map(_read, secrets))
+
+        if args.json:
+            print(json.dumps(result, indent=2))
+        else:
+            for name, value in result.items():
+                print(name)
+                print(value)
+    else:
+        for secret in secrets:
+            print(secret.name)
 
 
 def copy_secret():
