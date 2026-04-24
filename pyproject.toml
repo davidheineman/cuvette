@@ -38,6 +38,11 @@ ai2cleanup = "cuvette.aliases:ai2cleanup"
 bs = "cuvette.aliases:beaker_session_stop"
 bwidget = "cuvette.widget.main:main"
 bcopy = "cuvette.scripts.manage_workspace:copy_secret"
+barchive = "cuvette.scripts.manage_workspace:archive"
+bpurge = "cuvette.scripts.manage_workspace:purge_secrets"
+bdeluser = "cuvette.scripts.manage_workspace:delete_user_secrets"
+bdelvalues = "cuvette.scripts.manage_workspace:delete_by_value"
+bclean = "cuvette.scripts.manage_workspace:clean_secrets"
 
 [project.optional-dependencies]
 widget = [

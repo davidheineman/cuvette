@@ -2,7 +2,7 @@ import argparse
 import json
 import os
 from pathlib import Path
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from beaker import Beaker
 from beaker.exceptions import BeakerPermissionsError
@@ -190,3 +190,408 @@ def copy_secret():
         
     except Exception as e:
         print(f"Error copying secret '{args.secret}': {type(e).__name__}: {e}")
+
+
+def archive():
+    parser = argparse.ArgumentParser(
+        description="Archive (remove) one or more Beaker workspaces."
+    )
+    parser.add_argument(
+        "workspaces", nargs="+", type=str, help="Names of the workspaces to archive."
+    )
+    parser.add_argument(
+        "--unarchive", "-u", action="store_true", help="Unarchive instead of archive."
+    )
+    args = parser.parse_args()
+
+    beaker = Beaker.from_env()
+    action = "Unarchiving" if args.unarchive else "Archiving"
+    archived = not args.unarchive
+
+    for workspace_name in args.workspaces:
+        try:
+            workspace = beaker.workspace.get(workspace_name)
+            beaker.workspace.update(workspace, archived=archived)
+            print(f"{action}: {workspace_name}")
+        except Exception as e:
+            print(f"\033[31mFailed to update {workspace_name}: {type(e).__name__}: {e}\033[0m")
+
+
+def _delete_secrets(workspace_name, filter_fn=None, dry_run=False, beaker=None):
+    """Delete secrets from a workspace. If filter_fn is None, deletes all."""
+    if beaker is None:
+        beaker = Beaker.from_env()
+    print(f"Scanning {workspace_name}...", flush=True)
+    workspace = beaker.workspace.get(workspace_name)
+    secrets = list(beaker.secret.list(workspace=workspace))
+
+    if filter_fn:
+        targets = [s for s in secrets if filter_fn(s)]
+    else:
+        targets = secrets
+
+    if not targets:
+        print(f"{workspace_name}: no matching secrets found.")
+        return 0
+
+    prefix = "[DRY RUN] " if dry_run else ""
+    print(f"{prefix}{workspace_name}: {len(targets)} secret(s) to delete")
+
+    for secret in targets:
+        print(f"  {prefix}{secret.name}")
+
+    if dry_run:
+        return 0
+
+    deleted = 0
+    failed = 0
+
+    def _do_delete(secret):
+        beaker.secret.delete(secret, workspace=workspace)
+        return secret.name
+
+    with ThreadPoolExecutor(max_workers=16) as executor:
+        futures = {executor.submit(_do_delete, s): s for s in targets}
+        for future in as_completed(futures):
+            secret = futures[future]
+            try:
+                future.result()
+                deleted += 1
+            except Exception as e:
+                failed += 1
+                print(f"  \033[31mFailed to delete {secret.name}: {e}\033[0m")
+
+    print(f"Deleted {deleted}/{len(targets)} secret(s) from {workspace_name}.")
+    return deleted
+
+
+def _collect_workspaces(args):
+    """Gather workspace names from positional args and --file, optionally limited to first N."""
+    workspaces = list(args.workspaces or [])
+    if args.file:
+        with open(args.file, 'r') as f:
+            workspaces.extend(line.strip() for line in f if line.strip())
+    if not workspaces:
+        print("No workspaces specified. Use positional args or --file.")
+        return workspaces
+    if hasattr(args, 'n') and args.n is not None:
+        workspaces = workspaces[:args.n]
+    return workspaces
+
+
+def purge_secrets():
+    parser = argparse.ArgumentParser(
+        description="Delete ALL secrets from a Beaker workspace."
+    )
+    parser.add_argument(
+        "workspaces", nargs="*", type=str, help="Workspaces to purge."
+    )
+    parser.add_argument(
+        "--file", "-f", type=str, help="File with workspace names (one per line)."
+    )
+    parser.add_argument(
+        "-n", type=int, default=None, help="Only process the first N workspaces."
+    )
+    parser.add_argument(
+        "--dry-run", "-d", action="store_true", help="Print what would be deleted without deleting."
+    )
+    parser.add_argument(
+        "--yes", "-y", action="store_true", help="Skip confirmation prompt."
+    )
+    args = parser.parse_args()
+
+    workspaces = _collect_workspaces(args)
+    if not workspaces:
+        return
+
+    if not args.dry_run and not args.yes:
+        resp = input(f"Delete ALL secrets from {len(workspaces)} workspace(s)? [y/N] ")
+        if resp.lower() != "y":
+            print("Aborted.")
+            return
+
+    beaker = Beaker.from_env()
+    for ws in workspaces:
+        try:
+            _delete_secrets(ws, filter_fn=None, dry_run=args.dry_run, beaker=beaker)
+        except Exception as e:
+            print(f"\033[31m{ws}: {type(e).__name__}: {e}\033[0m")
+
+
+def delete_user_secrets():
+    parser = argparse.ArgumentParser(
+        description="Delete secrets containing 'davidh' or 'DAVIDH' from Beaker workspaces."
+    )
+    parser.add_argument(
+        "workspaces", nargs="*", type=str, help="Workspaces to clean."
+    )
+    parser.add_argument(
+        "--file", "-f", type=str, help="File with workspace names (one per line)."
+    )
+    parser.add_argument(
+        "-n", type=int, default=None, help="Only process the first N workspaces."
+    )
+    parser.add_argument(
+        "--patterns", "-p", nargs="+", type=str, default=["davidh", "DAVIDH"],
+        help="Substrings to match in secret names. Default: davidh DAVIDH"
+    )
+    parser.add_argument(
+        "--dry-run", "-d", action="store_true", help="Print what would be deleted without deleting."
+    )
+    args = parser.parse_args()
+
+    workspaces = _collect_workspaces(args)
+    if not workspaces:
+        return
+
+    filter_fn = lambda s: any(pat in s.name for pat in args.patterns)
+
+    beaker = Beaker.from_env()
+    for ws in workspaces:
+        try:
+            _delete_secrets(ws, filter_fn=filter_fn, dry_run=args.dry_run, beaker=beaker)
+        except Exception as e:
+            print(f"\033[31m{ws}: {type(e).__name__}: {e}\033[0m")
+
+
+def _load_local_secret_values():
+    """Load all known secret values from local env vars and secret files."""
+    all_secrets = GENERAL_ENV_SECRETS + GENERAL_FILE_SECRETS + USER_ENV_SECRETS + USER_FILE_SECRETS
+    values = set()
+    loaded_env = 0
+    loaded_file = 0
+
+    seen_env = set()
+    seen_file = set()
+
+    for entry in all_secrets:
+        if entry["type"] == "env":
+            env_var = entry["env"]
+            if env_var in seen_env:
+                continue
+            seen_env.add(env_var)
+            val = os.environ.get(env_var)
+            if val and val.strip():
+                values.add(val.strip())
+                loaded_env += 1
+        elif entry["type"] == "file":
+            path = entry["path"]
+            if path in seen_file:
+                continue
+            seen_file.add(path)
+            full_path = SECRETS_ROOT / Path(path)
+            try:
+                with open(full_path, 'r') as f:
+                    val = f.read().strip()
+                    if val:
+                        values.add(val)
+                        loaded_file += 1
+            except FileNotFoundError:
+                pass
+
+    print(f"Loaded {len(values)} unique secret values ({loaded_env} env vars, {loaded_file} files).")
+    return values
+
+
+def delete_by_value():
+    parser = argparse.ArgumentParser(
+        description="Delete secrets whose VALUES match your local env vars / secret files."
+    )
+    parser.add_argument(
+        "workspaces", nargs="*", type=str, help="Workspaces to scan."
+    )
+    parser.add_argument(
+        "--file", "-f", type=str, help="File with workspace names (one per line)."
+    )
+    parser.add_argument(
+        "-n", type=int, default=None, help="Only process the first N workspaces."
+    )
+    parser.add_argument(
+        "--dry-run", "-d", action="store_true", help="Print what would be deleted without deleting."
+    )
+    args = parser.parse_args()
+
+    workspaces = _collect_workspaces(args)
+    if not workspaces:
+        return
+
+    known_values = _load_local_secret_values()
+    if not known_values:
+        print("No local secret values found. Nothing to match against.")
+        return
+
+    beaker = Beaker.from_env()
+    total_deleted = 0
+
+    for ws_name in workspaces:
+        try:
+            workspace = beaker.workspace.get(ws_name)
+            secrets = list(beaker.secret.list(workspace=workspace))
+        except Exception as e:
+            print(f"\033[31m{ws_name}: {e}\033[0m")
+            continue
+
+        if not secrets:
+            continue
+
+        def _read_secret(secret):
+            try:
+                val = beaker.secret.read(secret, workspace=workspace)
+                return secret, val.strip()
+            except Exception:
+                return secret, None
+
+        matched = []
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            for secret, val in executor.map(_read_secret, secrets):
+                if val is not None and val in known_values:
+                    matched.append(secret)
+
+        if not matched:
+            continue
+
+        prefix = "[DRY RUN] " if args.dry_run else ""
+        print(f"{prefix}{ws_name}: {len(matched)} secret(s) to delete")
+        for secret in matched:
+            print(f"  {prefix}{secret.name}")
+
+        if not args.dry_run:
+            def _do_delete(secret):
+                beaker.secret.delete(secret, workspace=workspace)
+
+            deleted = 0
+            with ThreadPoolExecutor(max_workers=16) as executor:
+                futures = {executor.submit(_do_delete, s): s for s in matched}
+                for future in as_completed(futures):
+                    s = futures[future]
+                    try:
+                        future.result()
+                        deleted += 1
+                    except Exception as e:
+                        print(f"  \033[31mFailed to delete {s.name}: {e}\033[0m")
+
+            print(f"  Deleted {deleted}/{len(matched)}.")
+            total_deleted += deleted
+
+    if args.dry_run:
+        print(f"\nDry run complete. No secrets were deleted.")
+    else:
+        print(f"\nDone. Deleted {total_deleted} secret(s) total.")
+
+
+def clean_secrets():
+    parser = argparse.ArgumentParser(
+        description="Traverse workspaces and delete secrets matching name patterns or value lists."
+    )
+    parser.add_argument(
+        "--workspaces", "-w", nargs="+", type=str,
+        help="Workspaces to scan. If not provided, scans all workspaces in the org."
+    )
+    parser.add_argument(
+        "--name-patterns", "-n", nargs="+", type=str, default=["davidh", "DAVIDH"],
+        help="Delete secrets whose names contain any of these substrings (case-sensitive). "
+             "Default: davidh DAVIDH"
+    )
+    parser.add_argument(
+        "--match-values-file", "-f", type=str,
+        help="Path to a file with values to match against (one per line). "
+             "Secrets whose values match any line will be deleted."
+    )
+    parser.add_argument(
+        "--match-values", "-m", nargs="+", type=str,
+        help="Values to match against. Secrets whose values match any of these will be deleted."
+    )
+    parser.add_argument(
+        "--dry-run", "-d", action="store_true",
+        help="Print what would be deleted without actually deleting."
+    )
+    parser.add_argument(
+        "--read-values", "-r", action="store_true",
+        help="Also read secret values to match against --match-values / --match-values-file. "
+             "Off by default (name matching only) since reading values is slow."
+    )
+    args = parser.parse_args()
+
+    match_values = set()
+    if args.match_values:
+        match_values.update(v.strip() for v in args.match_values)
+    if args.match_values_file:
+        with open(args.match_values_file, 'r') as f:
+            match_values.update(line.strip() for line in f if line.strip())
+
+    if match_values and not args.read_values:
+        args.read_values = True
+        print("Note: --read-values enabled automatically since match values were provided.\n")
+
+    beaker = Beaker.from_env()
+
+    if args.workspaces:
+        workspaces = []
+        for name in args.workspaces:
+            try:
+                workspaces.append(beaker.workspace.get(name))
+            except Exception as e:
+                print(f"\033[31mSkipping {name}: {e}\033[0m")
+    else:
+        print("Listing all workspaces in org...")
+        workspaces = list(beaker.workspace.list())
+        print(f"Found {len(workspaces)} workspaces.\n")
+
+    total_deleted = 0
+
+    for workspace in workspaces:
+        try:
+            secrets = list(beaker.secret.list(workspace=workspace))
+        except Exception as e:
+            print(f"\033[31mCannot list secrets in {workspace.name}: {e}\033[0m")
+            continue
+
+        name_matched = []
+        remaining = []
+        for secret in secrets:
+            if any(pat in secret.name for pat in args.name_patterns):
+                name_matched.append(secret)
+            else:
+                remaining.append(secret)
+
+        value_matched = []
+        if args.read_values and match_values and remaining:
+            def _check_value(secret):
+                try:
+                    val = beaker.secret.read(secret, workspace=workspace)
+                    if val.strip() in match_values:
+                        return secret
+                except Exception:
+                    pass
+                return None
+
+            with ThreadPoolExecutor(max_workers=16) as executor:
+                futures = {executor.submit(_check_value, s): s for s in remaining}
+                for future in as_completed(futures):
+                    result = future.result()
+                    if result is not None:
+                        value_matched.append(result)
+
+        to_delete = name_matched + value_matched
+        if not to_delete:
+            continue
+
+        prefix = "[DRY RUN] " if args.dry_run else ""
+        print(f"{prefix}{workspace.name}: {len(to_delete)} secret(s) to delete")
+        for secret in name_matched:
+            print(f"  {prefix}(name match) {secret.name}")
+        for secret in value_matched:
+            print(f"  {prefix}(value match) {secret.name}")
+
+        if not args.dry_run:
+            for secret in to_delete:
+                try:
+                    beaker.secret.delete(secret, workspace=workspace)
+                except Exception as e:
+                    print(f"  \033[31mFailed to delete {secret.name}: {e}\033[0m")
+            total_deleted += len(to_delete)
+
+    if args.dry_run:
+        print(f"\nDry run complete. No secrets were deleted.")
+    else:
+        print(f"\nDone. Deleted {total_deleted} secret(s) total.")
